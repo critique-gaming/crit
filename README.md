@@ -12,21 +12,21 @@ each designed to solve one specific problem. Use as much or as little as you nee
 ## Modules
 
 * UI
-  * [Buttons](./button.md)
-  * [Responsive layout](./layout.md)
-  * [Drag and drop](./drag_and_drop.md)
-  * [Scroll views](./scroll.md)
-  * [Scroll bars](./scrollbar.md)
-  * [Sprite picking](./pick.md)
+  * [Buttons](./docs/button.md)
+  * [Responsive layout](./docs/layout.md)
+  * [Drag and drop](./docs/drag_and_drop.md)
+  * [Scroll views](./docs/scroll.md)
+  * [Scroll bars](./docs/scrollbar.md)
+  * [Sprite picking](./docs/pick.md)
 * Architecture
-  * [The message dispatcher](./dispatcher.md)
-  * [Coroutine progression system](./progression.md)
-  * [Event emitters](./event_emitter.md)
+  * [The message dispatcher](./docs/dispatcher.md)
+  * [Coroutine progression system](./docs/progression.md)
+  * [Event emitters](./docs/event_emitter.md)
 * Input
-  * [Input methods and keyboard/gamepad focus](./input_state.md)
-  * [Initiating first focus](./focus_giver.md)
-  * [Analog to digital thumbstick conversion](./analog_to_digital.md)
-* [Internationalisation](./intl.md)
+  * [Input methods and keyboard/gamepad focus](./docs/input_state.md)
+  * [Initiating first focus](./docs/focus_giver.md)
+  * [Analog to digital thumbstick conversion](./docs/analog_to_digital.md)
+* [Internationalisation](./docs/intl.md)
 * Utilities
-  * [Table manipulation utilities](./table_util.md)
-  * [Low-pass and high-pass filters](./filters.md)
+  * [Table manipulation utilities](./docs/table_util.md)
+  * [Low-pass and high-pass filters](./docs/filters.md)

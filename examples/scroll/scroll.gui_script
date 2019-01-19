@@ -1,0 +1,42 @@
+local Scroll = require "crit.scroll"
+local ScrollBar = require "crit.scrollbar"
+
+function init(self)
+	local content_node = gui.get_node("content")
+	local container_node = gui.get_node("container")
+
+	self.scroll = Scroll.new({
+		content_height = gui.get_size(content_node).y,
+		view_height = gui.get_size(container_node).y,
+		pick = function (action)
+			return gui.pick_node(container_node, action.x, action.y)
+		end,
+	})
+
+	self.scroll:add_node(content_node)
+
+	self.scrollbar1 = ScrollBar.new(self.scroll, gui.get_node("scrollknob1"), {
+		knob = true,
+		spread = gui.get_size(gui.get_node("scrollbar1")).y,
+	})
+	self.scrollbar2 = ScrollBar.new(self.scroll, gui.get_node("scrollknob2"))
+
+	msg.post(".", "acquire_input_focus")
+end
+
+
+function update(self, dt)
+	self.scroll:update(dt)
+end
+
+function on_input(self, action_id, action)
+	if self.scroll:on_input(action_id, action) then
+		return true
+	end
+	if self.scrollbar1:on_input(action_id, action) then
+		return true
+	end
+	if self.scrollbar2:on_input(action_id, action) then
+		return true
+	end
+end

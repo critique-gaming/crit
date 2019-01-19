@@ -50,7 +50,6 @@ function ScrollBar.new(scroll, node, opts)
   local self = {
     scroll = scroll,
     node = node,
-    parent = gui.get_parent(node),
     knob = opts.knob or false,
     axis = opts.axis or "y",
     action_to_position = opts.action_to_position or ScrollBar.default_gui_action_to_position
@@ -103,9 +102,14 @@ local function get_scroll_scale(self)
     full_scroll_height = full_scroll_height - view_height
   end
 
-  local parent_scale = gui.get_scale(self.parent)
-  local axis = self.axis
-  return full_scroll_height / (self.size[axis] * parent_scale[axis]), parent_scale
+  local node = self.node
+  local orig_pos = gui.get_position(node)
+  local orig_screen_pos = gui.get_screen_position(node)
+  gui.set_position(node, orig_pos + self.size)
+  local size_in_screen = gui.get_screen_position(node) - orig_screen_pos
+  gui.set_position(node, orig_pos)
+
+  return full_scroll_height / size_in_screen[self.axis], size_in_screen
 end
 
 local function action_to_vec3(action)
@@ -133,15 +137,14 @@ function ScrollBar.__index:on_input(action_id, action)
       else
         local offset = scroll.offset
 
-        local scale, parent_scale = get_scroll_scale(self)
+        local scale, size_in_screen = get_scroll_scale(self)
         local current_grab = gui.get_screen_position(self.node) - action_to_vec3(action)
 
         local axis = self.axis
         local other_axis = self.other_axis
 
-        local dx = current_grab[other_axis] / parent_scale[other_axis]
-        local size = self.size
-        local half_width = size[other_axis] * 0.5
+        local dx = current_grab[other_axis]
+        local half_width = size_in_screen[other_axis] * 0.5
         if dx < -half_width or dx > half_width then
           return
         end

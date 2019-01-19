@@ -1,0 +1,6 @@
+{
+  "my_message": "Bună! Acest mesaj colorat este internaționalizat.",
+  "my_advanced_message": "Sunt ${people_count} de oameni activi acum.",
+  "my_label":  "Un label",
+  "my_gui_node": "Un nod GUI de text"
+}

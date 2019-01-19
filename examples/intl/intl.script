@@ -1,0 +1,15 @@
+local intl = require "crit.intl"
+
+intl.init({
+	intl_dir = "/examples/intl/data" -- The default is /intl
+})
+
+function init(self)
+	label.set_text("#label1", intl("my_message"))
+	label.set_text("#label2", intl("my_advanced_message", { people_count = 12345 }))
+	intl.translate_label("#label3", "my_label")
+	sprite.play_flipbook("#flag", intl.select({
+		en = hash("flag_en"),
+		ro = hash("flag_ro"),
+	}))
+end

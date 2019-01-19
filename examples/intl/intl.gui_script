@@ -1,0 +1,5 @@
+local intl = require "crit.intl"
+
+function init(self)
+	intl.translate_text_node("text")
+end

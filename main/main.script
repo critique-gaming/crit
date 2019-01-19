@@ -1,7 +1,7 @@
 local Button = require "crit.button"
 local table_util = require "crit.table_util"
 
-local examples = { "dispatcher", "progression", "filters", "analog_to_digital" }
+local examples = { "dispatcher", "progression", "filters", "analog_to_digital", "intl" }
 
 local function load_example(example_name)
 	collectionfactory.create("#" .. example_name)

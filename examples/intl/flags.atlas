@@ -1,0 +1,9 @@
+images {
+  image: "/examples/intl/assets/flag_en.png"
+}
+images {
+  image: "/examples/intl/assets/flag_ro.png"
+}
+margin: 2
+extrude_borders: 2
+inner_padding: 0

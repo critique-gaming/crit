@@ -1,0 +1,6 @@
+local intl = require "crit.intl"
+local intl_ns = intl.namespace("my_namespace")
+
+function init(self)
+	intl_ns.translate_label("#label", "namespaced_message")
+end

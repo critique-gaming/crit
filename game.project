@@ -11,6 +11,8 @@ high_dpi = 1
 
 [project]
 title = Crit
+custom_resources = examples/intl/data
 
 [library]
 include_dirs = crit
+

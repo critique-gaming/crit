@@ -76,6 +76,9 @@ function ScrollBar.new(scroll, node, opts)
   end)
 
   setmetatable(self, ScrollBar)
+
+  ScrollBar_on_offset_change(self)
+
   return self
 end
 

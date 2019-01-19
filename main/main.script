@@ -6,7 +6,7 @@ local examples = {
 	"button_focus", "analog_to_digital",
 	"button", "layout", "scroll", "drag_and_drop", "pick",
 	"intl",
-	"filters", "table_util",
+	"filters",
 }
 
 local function load_example(example_name)

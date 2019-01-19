@@ -1,0 +1,87 @@
+local progression = require "crit.progression"
+local dispatcher = require "crit.dispatcher"
+
+local h_progression_init = hash("progression_init")
+
+local subscriptions = {}
+
+function init(self)
+  -- Delay progression init until all game objects ran their init()
+  msg.post(".", h_progression_init)
+end
+
+function final(self)
+  for i, sub in pairs(subscriptions) do
+    dispatcher.unsubscribe(sub.id)
+  end
+  subscriptions = {}
+end
+
+function progression._subscribe_to_message(message_id, co, handler)
+  local sub = subscriptions[message_id]
+  if not sub then
+    subscriptions[message_id] = {
+      id = dispatcher.subscribe({ message_id }),
+      handlers = { [co] = handler },
+    }
+  else
+    sub.handlers[co] = handler
+  end
+end
+
+function progression._unsubscribe_from_message(message_id, co)
+  local sub = subscriptions[message_id]
+  if not sub then return end
+
+  local handlers = sub.handlers
+  handlers[co] = nil
+
+  if next(handlers) == nil then
+    dispatcher.unsubscribe(sub.id)
+    subscriptions[message_id] = nil
+  end
+end
+
+function progression._load_function(id, co)
+  local pending_load = true
+
+  local factory_url = msg.url()
+  factory_url.fragment = id
+
+  factory.load(factory_url, function (self, url, result)
+    local func
+    if result then
+      local object = factory.create(factory_url)
+      func = progression._loaded_function
+      go.delete(object)
+      factory.unload(factory_url)
+    end
+    if pending_load then
+      progression.resume_coroutine(co, func)
+    end
+  end)
+
+  return function ()
+    pending_load = false
+  end
+end
+
+function on_message(self, message_id, message, sender)
+  if message_id == h_progression_init then
+    progression.start_coroutine(function ()
+      local main = progression.load_function("main")
+      main()
+    end)
+    return
+  end
+
+  local sub = subscriptions[message_id]
+  if not sub then return end
+
+  for co, handler in pairs(sub.handlers) do
+    if handler(message_id, message) then
+      progression._unsubscribe_from_message(message_id, co)
+      progression.resume_coroutine(co, message)
+    end
+  end
+end

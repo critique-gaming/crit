@@ -7,7 +7,10 @@ shared_state = 1
 [display]
 width = 960
 height = 640
+high_dpi = 1
 
 [project]
-title = crit
+title = Crit
 
+[library]
+include_dirs = crit

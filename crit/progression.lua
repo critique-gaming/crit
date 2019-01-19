@@ -70,7 +70,7 @@ end
 -- Forking
 
 local waiting_list = {}
--- setmetatable(waiting_list, { __mode = 'k' }) -- Weak table
+setmetatable(waiting_list, { __mode = 'k' }) -- Weak table
 
 local function wake_waiting_threads(co)
   local threads_waiting = waiting_list[co]

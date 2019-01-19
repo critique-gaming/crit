@@ -21,7 +21,6 @@ each designed to solve one specific problem. Use as much or as little as you nee
 * Architecture
   * [The message dispatcher](./docs/dispatcher.md)
   * [Coroutine progression system](./docs/progression.md)
-  * [Event emitters](./docs/event_emitter.md)
 * Input
   * [Input methods and keyboard/gamepad focus](./docs/input_state.md)
   * [Initiating first focus](./docs/focus_giver.md)

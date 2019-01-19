@@ -2,7 +2,7 @@ local Button = require "crit.button"
 local table_util = require "crit.table_util"
 
 local examples = {
-	"dispatcher", "progression", "event_emitter",
+	"dispatcher", "progression",
 	"button_focus", "analog_to_digital",
 	"button", "layout", "scroll", "drag_and_drop", "pick",
 	"intl",

@@ -1,3 +1,0 @@
-# Event emitter
-
-> TODO

@@ -1,0 +1,62 @@
+local progression = require "crit.progression"
+local dispatcher = require "crit.dispatcher"
+
+local h_dot_click = hash("dot_click")
+local h_dot_reset = hash("dot_reset")
+local h_dot_activate = hash("dot_activate")
+local h_score_set = hash("score_set")
+
+local dot_count = 9
+
+local function dot_challenge(dot_index)
+	local is_successful
+	local timeout, challenge
+
+	dispatcher.dispatch(h_dot_activate, { dot_index = dot_index })
+
+	timeout = progression.fork(function ()
+		progression.wait(2)
+		is_successful = false
+		progression.cancel_coroutine(challenge)
+	end)
+
+	challenge = progression.fork(function ()
+		local message = progression.wait_for_message(h_dot_click)
+		is_successful = message.dot_index == dot_index
+		progression.cancel_coroutine(timeout)
+	end)
+
+	progression.join(timeout)
+	progression.join(challenge)
+	return is_successful
+end
+
+local function set_score(score)
+	dispatcher.dispatch(h_score_set, { score = score })
+end
+
+local function game()
+	local score = 0
+	set_score(score)
+	dispatcher.dispatch(h_dot_reset)
+
+	progression.wait(5)
+
+	while true do
+		if not dot_challenge(math.random(dot_count)) then
+			print("Game over")
+			return
+		end
+		score = score + 1
+		set_score(score)
+		progression.wait(math.random() * 1.5 + 0.5)
+	end
+end
+
+local function main()
+	while true do
+		game()
+	end
+end
+
+progression.init_register_function(main)

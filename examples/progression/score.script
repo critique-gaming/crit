@@ -1,0 +1,17 @@
+local dispatcher = require "crit.dispatcher"
+
+local h_score_set = hash("score_set")
+
+function init(self)
+	self.sub_id = dispatcher.subscribe({ h_score_set })
+end
+
+function final(self)
+	dispatcher.unsubscribe(self.sub_id)
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == h_score_set then
+		label.set_text("#label", "Score: " .. message.score)
+	end
+end

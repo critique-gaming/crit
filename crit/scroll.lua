@@ -166,7 +166,7 @@ function Scroll.__index:set_offset(offset, velocity, allow_overscroll)
   end
 end
 
-function Scroll.__index:nearest_offset_to_range(top, bottom)
+function Scroll.__index:nearest_offset_covering_range(top, bottom)
   local offset = self.offset
   local content_height = self.content_height
   local view_height = self.view_height

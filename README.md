@@ -7,7 +7,7 @@ The modules are self-contained and depend on each other as little as possible,
 each designed to solve one specific problem. Use as much or as little as you need.
 
 [Critique Gaming]: https://critique-gaming.com
-[Defold]: https://defold.org
+[Defold]: https://defold.com
 
 ## Modules
 

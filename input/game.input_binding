@@ -1,4 +1,276 @@
+key_trigger {
+  input: KEY_LEFT
+  action: "key_left"
+}
+key_trigger {
+  input: KEY_RIGHT
+  action: "key_right"
+}
+key_trigger {
+  input: KEY_E
+  action: "key_e"
+}
+key_trigger {
+  input: KEY_A
+  action: "key_a"
+}
+key_trigger {
+  input: KEY_D
+  action: "key_d"
+}
+key_trigger {
+  input: KEY_W
+  action: "key_w"
+}
+key_trigger {
+  input: KEY_S
+  action: "key_s"
+}
+key_trigger {
+  input: KEY_H
+  action: "key_h"
+}
+key_trigger {
+  input: KEY_J
+  action: "key_j"
+}
+key_trigger {
+  input: KEY_K
+  action: "key_k"
+}
+key_trigger {
+  input: KEY_L
+  action: "key_l"
+}
+key_trigger {
+  input: KEY_F
+  action: "key_f"
+}
+key_trigger {
+  input: KEY_ESC
+  action: "key_escape"
+}
+key_trigger {
+  input: KEY_R
+  action: "key_r"
+}
+key_trigger {
+  input: KEY_P
+  action: "key_p"
+}
+key_trigger {
+  input: KEY_T
+  action: "key_t"
+}
+key_trigger {
+  input: KEY_BACKQUOTE
+  action: "key_backquote"
+}
+key_trigger {
+  input: KEY_LALT
+  action: "key_alt"
+}
+key_trigger {
+  input: KEY_RALT
+  action: "key_alt"
+}
+key_trigger {
+  input: KEY_ENTER
+  action: "key_enter"
+}
+key_trigger {
+  input: KEY_F4
+  action: "key_f4"
+}
+key_trigger {
+  input: KEY_SPACE
+  action: "key_space"
+}
+key_trigger {
+  input: KEY_H
+  action: "key_h"
+}
+key_trigger {
+  input: KEY_M
+  action: "key_m"
+}
+key_trigger {
+  input: KEY_LSHIFT
+  action: "key_shift"
+}
+key_trigger {
+  input: KEY_RSHIFT
+  action: "key_shift"
+}
+key_trigger {
+  input: KEY_UP
+  action: "key_up"
+}
+key_trigger {
+  input: KEY_DOWN
+  action: "key_down"
+}
+key_trigger {
+  input: KEY_LCTRL
+  action: "key_ctrl"
+}
+key_trigger {
+  input: KEY_RCTRL
+  action: "key_ctrl"
+}
+key_trigger {
+  input: KEY_0
+  action: "key_0"
+}
+key_trigger {
+  input: KEY_1
+  action: "key_1"
+}
+key_trigger {
+  input: KEY_2
+  action: "key_2"
+}
+key_trigger {
+  input: KEY_3
+  action: "key_3"
+}
+key_trigger {
+  input: KEY_4
+  action: "key_4"
+}
+key_trigger {
+  input: KEY_5
+  action: "key_5"
+}
+key_trigger {
+  input: KEY_6
+  action: "key_6"
+}
+key_trigger {
+  input: KEY_7
+  action: "key_7"
+}
+key_trigger {
+  input: KEY_8
+  action: "key_8"
+}
+key_trigger {
+  input: KEY_9
+  action: "key_9"
+}
 mouse_trigger {
   input: MOUSE_BUTTON_1
+  action: "click"
+}
+mouse_trigger {
+  input: MOUSE_WHEEL_UP
+  action: "wheel_up"
+}
+mouse_trigger {
+  input: MOUSE_WHEEL_DOWN
+  action: "wheel_down"
+}
+gamepad_trigger {
+  input: GAMEPAD_LPAD_LEFT
+  action: "gamepad_lpad_left"
+}
+gamepad_trigger {
+  input: GAMEPAD_LPAD_RIGHT
+  action: "gamepad_lpad_right"
+}
+gamepad_trigger {
+  input: GAMEPAD_LPAD_UP
+  action: "gamepad_lpad_up"
+}
+gamepad_trigger {
+  input: GAMEPAD_LPAD_DOWN
+  action: "gamepad_lpad_down"
+}
+gamepad_trigger {
+  input: GAMEPAD_RPAD_LEFT
+  action: "gamepad_rpad_left"
+}
+gamepad_trigger {
+  input: GAMEPAD_RPAD_RIGHT
+  action: "gamepad_rpad_right"
+}
+gamepad_trigger {
+  input: GAMEPAD_RPAD_UP
+  action: "gamepad_rpad_up"
+}
+gamepad_trigger {
+  input: GAMEPAD_RPAD_DOWN
+  action: "gamepad_rpad_down"
+}
+gamepad_trigger {
+  input: GAMEPAD_START
+  action: "gamepad_start"
+}
+gamepad_trigger {
+  input: GAMEPAD_BACK
+  action: "gamepad_back"
+}
+gamepad_trigger {
+  input: GAMEPAD_GUIDE
+  action: "gamepad_guide"
+}
+gamepad_trigger {
+  input: GAMEPAD_RSHOULDER
+  action: "gamepad_rshoulder"
+}
+gamepad_trigger {
+  input: GAMEPAD_LSHOULDER
+  action: "gamepad_lshoulder"
+}
+gamepad_trigger {
+  input: GAMEPAD_LTRIGGER
+  action: "gamepad_ltrigger"
+}
+gamepad_trigger {
+  input: GAMEPAD_RTRIGGER
+  action: "gamepad_rtrigger"
+}
+gamepad_trigger {
+  input: GAMEPAD_LSTICK_LEFT
+  action: "gamepad_lstick_left"
+}
+gamepad_trigger {
+  input: GAMEPAD_LSTICK_RIGHT
+  action: "gamepad_lstick_right"
+}
+gamepad_trigger {
+  input: GAMEPAD_LSTICK_UP
+  action: "gamepad_lstick_up"
+}
+gamepad_trigger {
+  input: GAMEPAD_LSTICK_DOWN
+  action: "gamepad_lstick_down"
+}
+gamepad_trigger {
+  input: GAMEPAD_RSTICK_LEFT
+  action: "gamepad_rstick_left"
+}
+gamepad_trigger {
+  input: GAMEPAD_RSTICK_RIGHT
+  action: "gamepad_rstick_right"
+}
+gamepad_trigger {
+  input: GAMEPAD_RSTICK_UP
+  action: "gamepad_rstick_up"
+}
+gamepad_trigger {
+  input: GAMEPAD_RSTICK_DOWN
+  action: "gamepad_rstick_down"
+}
+gamepad_trigger {
+  input: GAMEPAD_LSTICK_CLICK
+  action: "gamepad_lstick_click"
+}
+gamepad_trigger {
+  input: GAMEPAD_RSTICK_CLICK
+  action: "gamepad_rstick_click"
+}
+touch_trigger {
+  input: TOUCH_MULTI
   action: "touch"
 }

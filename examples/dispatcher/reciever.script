@@ -1,0 +1,30 @@
+local dispatcher = require "crit.dispatcher"
+
+local h_toggle = hash("toggle")
+
+local colors = {
+	[true] = vmath.vector4(1.0, 0.0, 0.0, 1.0),
+	[false] = vmath.vector4(0.0, 0.0, 1.0, 1.0),
+}
+
+local function set_color(value)
+	sprite.set_constant("#sprite", "tint", colors[value])
+end
+
+function init(self)
+	self.value = true
+	set_color(self.value)
+	
+	self.sub_id = dispatcher.subscribe({ h_toggle })
+end
+
+function final(self)
+	dispatcher.unsubscribe(self.sub_id)
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == h_toggle then
+		self.value = not self.value
+		set_color(self.value)
+	end
+end

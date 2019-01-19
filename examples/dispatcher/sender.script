@@ -1,0 +1,14 @@
+local dispatcher = require "crit.dispatcher"
+
+local h_click = hash("click")
+local h_toggle = hash("toggle")
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
+end
+
+function on_input(self, action_id, action)
+	if action_id == h_click and action.pressed then
+		dispatcher.dispatch(h_toggle)
+	end
+end

@@ -93,8 +93,8 @@ it gets dispatched.
 Invalidates a dispatcher subscription created with `subscribe()` or
 `subscribe_hook()`.
 
-Forgetting to call this in `final()` results in messages being dispatched to a
-deleted game object, which is an error.
+**Forgetting to call this in `final()` results in messages being dispatched to a
+deleted game object, which is an error.**
 
 **Arguments:**  
 * `subscription_id`: `number`. The id of the subscription returned from `subscribe()` or `subscribe_hook()`.

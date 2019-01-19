@@ -6,10 +6,10 @@ local filter_vel = filters.low_pass(1.0)
 local Scroll = {
   __index = {},
   click_action_id = hash("click"),
+  wheel_up_action_id = hash("wheel_up"),
+  wheel_down_action_id = hash("wheel_down"),
 }
 
-local h_wheel_up = hash("wheel_up")
-local h_wheel_down = hash("wheel_down")
 local h_wheel = hash("wheel")
 local h_touch = hash("touch")
 
@@ -229,9 +229,9 @@ function Scroll.__index:update(dt)
 end
 
 function Scroll.__index:on_input(action_id, action)
-  if action_id == h_wheel_down or action_id == h_wheel_up then
+  if action_id == Scroll.wheel_down_action_id or action_id == Scroll.wheel_up_action_id then
     if action.value > 0 and self.pick(action) and self:acquire_control(h_wheel) then
-      local dy = action.value * (action_id == h_wheel_down and self.wheel_step or -self.wheel_step)
+      local dy = action.value * (action_id == Scroll.wheel_down_action_id and self.wheel_step or -self.wheel_step)
       self:set_offset(self.offset + dy)
       self:release_control()
       return true

@@ -39,6 +39,9 @@ function progression.resume_coroutine(co, ...)
   end
 end
 
+local dead_coroutines = {}
+setmetatable(dead_coroutines, { __mode = 'k' }) -- Weak table
+
 function progression.cancel_coroutine(co)
   local cancel_handler = immediate_cancel_handlers[co]
   if cancel_handler then
@@ -46,6 +49,7 @@ function progression.cancel_coroutine(co)
     immediate_cancel_handlers[co] = nil
   end
   run_cleanup_handlers(co)
+  dead_coroutines[co] = true
 end
 
 function progression.add_cleanup_handler(f, key, co)
@@ -108,7 +112,7 @@ function progression.fork(f, ...)
 end
 
 function progression.join(child)
-  if coroutine.status(child) == "dead" then
+  if dead_coroutines[child] or coroutine.status(child) == "dead" then
     return
   end
   local co = coroutine.running()

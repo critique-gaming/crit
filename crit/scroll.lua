@@ -93,6 +93,10 @@ function Scroll.__index:add_offset_listener(listener)
 end
 
 function Scroll.__index:add_node(node, position)
+  position = position or (self.is_go
+    and go.get_position(node)
+    or gui.get_position(node)
+  )
   local index = table.insert(self.nodes, { node, position })
   if self.is_go then
     go.set_position(position + vmath.vector3(0, self.offset, 0), node)

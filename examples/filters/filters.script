@@ -1,5 +1,7 @@
 local filters = require "crit.filters"
 
+-- Creating filters with 1Hz cutoff, meaning the signal will
+-- almost completely smoothen out in roughly 1s
 local low_pass_filter = filters.low_pass(1.0)
 local high_pass_filter = filters.high_pass(1.0)
 
@@ -27,7 +29,7 @@ function update(self, dt)
 		dt
 	)
 	self.previous_value = self.value
-	
+
 	go.set_position(self.lp_filtered_value, "low_pass_indicator")
 	go.set_position(self.hp_filtered_value, "high_pass_indicator")
 end

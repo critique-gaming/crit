@@ -8,6 +8,8 @@ Small module that implements low-pass and high-pass filters. Useful in animation
 for smoothing out a signal (low-pass) or for focusing on fast changes in the
 signal (high-pass).
 
+**Usage example:** [examples/filters/filters.script](../examples/filters/filters.script)
+
 ## Low-pass filters
 
 ![Low-pass filter applied on step signal](./filters-low-pass.png)
@@ -20,39 +22,36 @@ durations.
 
 [Low-pass filters]: https://en.wikipedia.org/wiki/Low-pass_filter
 
-### Usage
+### API
 
 ```lua
 local filter = filters.low_pass(cutoff_frequency)
 output = filter(previous_output, input, dt)
 ```
 
-**Example:**
+* `previous_output`: `number | vector3 | vector4` The previous output value of the filter
+* `input`: `number | vector3 | vector4` The current value of the input signal
+* `dt`: `number` Elapsed time (in seconds) since the previous sample
+* `output`: `number | vector3 | vector4` The current output value of the filter
+
+## High pass filters
+
+![High-pass filter applied on step signal](./filters-high-pass.png)
+
+[High-pass filters] remove low frequencies from a signal, leaving out only the
+high frequencies. This is useful for situations where you need to track
+abrupt momentary changes.
+
+[High-pass filters]: https://en.wikipedia.org/wiki/High-pass_filter
+
+### API
 
 ```lua
--- Creating a low-pass filter with 1Hz cutoff,
--- meaning the signal will almost completely
--- smoothen out in roughly 1s
-local filter = filters.low_pass(1.0)
-
-function init(self)
-  self.target = 0.0
-  self.filtered_value = 0.0
-end
-
-function on_input(self, action_id, action)
-  if action_id == hash("gamepad_lstick_right") then
-    self.target = action.value
-  end
-end
-
-function update(self, dt)
-  self.filtered_value = filter(
-    self.filtered_value,
-    self.target,
-    dt
-  )
-end
+local filter = filters.high_pass(cutoff_frequency)
+output = filter(previous_output, delta_input, dt)
 ```
 
-> TODO
+* `previous_output`: `number | vector3 | vector4` The previous output value of the filter
+* `delta_input`: `number | vector3 | vector4` The difference between the current and previous values of the input signal
+* `dt`: `number` Elapsed time (in seconds) since the previous sample
+* `output`: `number | vector3 | vector4` The current output value of the filter

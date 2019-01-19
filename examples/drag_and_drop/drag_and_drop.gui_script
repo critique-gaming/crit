@@ -1,0 +1,65 @@
+local DragAndDrop = require "crit.drag_and_drop"
+
+local h_dragging = hash("dragging")
+local h_source = hash("source")
+
+local function snap_to(node, position)
+	gui.animate(node, "position", position, gui.EASING_OUTEXPO, 0.3, 0.0, function ()
+			gui.set_layer(node, h_source)
+	end)
+end
+
+function init(self)
+	local sources = {}
+	for i = 1, 3 do
+		local node = gui.get_node("source" .. i)
+		sources[i] = {
+			node = node,
+			slot_position = gui.get_position(node),
+		}
+	end
+
+	local targets = {}
+	for i = 1, 5 do
+		targets[i] = {
+			node = gui.get_node("target" .. i),
+			occupied = false,
+		}
+	end
+
+	self.dnd = DragAndDrop.new({
+		drag_sources = sources,
+		drop_targets = targets,
+		can_drag = function (drag_source, drop_target)
+			return not drop_target.occupied
+		end,
+		on_drag_start = function (drag_source)
+			gui.set_layer(drag_source.node, h_dragging)
+		end,
+		on_drag_cancel = function (drag_source)
+			snap_to(drag_source.node, drag_source.slot_position)
+		end,
+		on_drag_move = function (drag_source, dx, dy)
+			local node = drag_source.node
+			gui.set_position(node, gui.get_position(node) + vmath.vector3(dx, dy, 0))
+		end,
+		on_drag_commit = function (drag_source, drop_target)
+			drag_source.slot_position = gui.get_position(drop_target.node)
+			snap_to(drag_source.node, drag_source.slot_position)
+
+			if drag_source.current_target then
+				drag_source.current_target.occupied = false
+			end
+			drag_source.current_target = drop_target
+			drop_target.occupied = true
+		end
+	})
+
+	msg.post(".", "acquire_input_focus")
+end
+
+function on_input(self, action_id, action)
+		if self.dnd:on_input(action_id, action) then
+			return true
+		end
+end

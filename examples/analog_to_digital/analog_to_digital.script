@@ -1,0 +1,47 @@
+local analog_to_digital = require "crit.analog_to_digital"
+
+local default_color = vmath.vector4(1.0)
+local pressed_color = vmath.vector4(1.0, 0.0, 0.0, 1.0)
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
+
+	-- The analog_to_digital setup game object must always be
+	-- at the top of the input stack
+	msg.post("setup", "acquire_input_focus")
+
+	self.indicators = {
+		[hash("gamepad_lstick_digital_up")] = msg.url("indicators#lstick_up"),
+		[hash("gamepad_lstick_digital_down")] = msg.url("indicators#lstick_down"),
+		[hash("gamepad_lstick_digital_left")] = msg.url("indicators#lstick_left"),
+		[hash("gamepad_lstick_digital_right")] = msg.url("indicators#lstick_right"),
+		[hash("gamepad_rstick_digital_up")] = msg.url("indicators#rstick_up"),
+		[hash("gamepad_rstick_digital_down")] = msg.url("indicators#rstick_down"),
+		[hash("gamepad_rstick_digital_left")] = msg.url("indicators#rstick_left"),
+		[hash("gamepad_rstick_digital_right")] = msg.url("indicators#rstick_right"),
+	}
+end
+
+on_input = analog_to_digital.convert_on_input(function (self, action_id, action)
+	local indicator_url = self.indicators[action_id]
+	if not indicator_url then
+		return
+	end
+
+	if action.pressed then
+		go.cancel_animations(indicator_url, "tint")
+		sprite.set_constant(indicator_url, "tint", pressed_color)
+	elseif action.released then
+		go.cancel_animations(indicator_url, "tint")
+		sprite.set_constant(indicator_url, "tint", default_color)
+	elseif action.repeated then
+		go.cancel_animations(indicator_url, "tint")
+		sprite.set_constant(indicator_url, "tint", default_color)
+		go.animate(indicator_url, "tint", go.PLAYBACK_ONCE_FORWARD, pressed_color, go.EASING_INCUBIC, 0.15)
+	end
+end)
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Remove this function if not needed
+end

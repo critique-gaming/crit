@@ -71,8 +71,8 @@ function ScrollBar.new(scroll, node, opts)
   self.size = gui.get_size(node)
   self.top = gui.get_position(node)
 
-  if self.knob then
-    self.size[self.axis] = gui.get_size(self.parent)[self.axis]
+  if opts.spread then
+    self.size[self.axis] = opts.spread
   end
 
   scroll:add_offset_listener(function ()

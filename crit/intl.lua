@@ -2,6 +2,11 @@ local languages = {}
 local fallback_languages = {}
 local warn_fallback = false
 local intl_dir = ""
+local uninitialized = true
+
+local function uninitialized_error()
+  error("intl functions cannot be called before intl.init()", 2)
+end
 
 local function lua_loader(namespace_id, language)
   local file = sys.load_resource(intl_dir .. "/" .. namespace_id .. "." .. language .. ".lua")
@@ -110,6 +115,7 @@ local function make_namespace(namespace_id)
   end
 
   local function translate(key, values)
+    if uninitialized then uninitialized_error() end
     local entry = get_entry(key)
     if not values then
       return entry
@@ -118,6 +124,7 @@ local function make_namespace(namespace_id)
   end
 
   local function translate_text_node(node)
+    if uninitialized then uninitialized_error() end
     if type(node) == "string" then
       node = gui.get_node(node)
     end
@@ -127,12 +134,15 @@ local function make_namespace(namespace_id)
   end
 
   local function translate_label(url, key, values)
+    if uninitialized then uninitialized_error() end
     local text = translate(key, values)
     label.set_text(url, text)
     return text
   end
 
   local function select(options)
+    if uninitialized then uninitialized_error() end
+
     for i, lang in ipairs(languages) do
       local entry = options[lang]
       if entry ~= nil then return entry end
@@ -215,10 +225,13 @@ function M.init(options)
   warn_fallback = not not (options and options.warn_fallback)
   strict = not not (options and options.strict)
 
+  uninitialized = false
+
   reload()
 end
 
 function M.configure(options)
+  if uninitialized then uninitialized_error() end
   if not options then return end
 
   languages = to_array(options.languages or options.language) or languages

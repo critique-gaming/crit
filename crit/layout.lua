@@ -9,6 +9,9 @@ local design_height = tonumber(sys.get_config("display.height", "640"))
 Layout.design_width = design_width
 Layout.design_height = design_height
 
+Layout.design_grav_x = 0.0
+Layout.design_grav_y = 0.0
+
 -- There are 4 coordinate spaces:
 -- 1) Window space: Raw screen coordinates inside the window. Origin is bottom left.
 --    Corresponds to action.screen_x/screen_y
@@ -22,52 +25,92 @@ Layout.design_height = design_height
 --    the viewport origin.
 
 local window_width, window_height
-local viewport_width, viewport_height
-local projection_width, projection_height
 
+local viewport_width, viewport_height
 local viewport_origin_x, viewport_origin_y
-local projection_origin_x, projection_origin_y
-local projection_scale_x, projection_scale_y
+
 local design_offset_x, design_offset_y
+
+local projection, gui_projection
+
+local projection_width, projection_height
+local projection_left, projection_right
+local projection_top, projection_bottom
+
+local viewport_to_projection_scale_x, viewport_to_projection_scale_y
+local projection_to_viewport_scale_x, projection_to_viewport_scale_y
+local projection_grav_x, projection_grav_y
 
 function Layout.set_metrics(metrics)
   window_width = metrics.window_width
   window_height = metrics.window_height
+
   if window_width == nil or window_height == nil then
     error("metrics.window_width and metrics.window_height are required")
   end
-  viewport_width = metrics.viewport_width or window_width
-  viewport_height = metrics.viewport_height or window_height
-  projection_width = metrics.projection_width or viewport_width
-  projection_height = metrics.projection_height or viewport_height
+
+  projection = nil
+  gui_projection = nil
 
   Layout.window_width = window_width
   Layout.window_height = window_height
+
+  viewport_width = metrics.viewport_width or window_width
+  viewport_height = metrics.viewport_height or window_height
+  viewport_origin_x = metrics.viewport_origin_x or
+    math.ceil((window_width - viewport_width) * (metrics.viewport_grav_x or 0.5))
+  viewport_origin_y = metrics.viewport_origin_y or
+    math.ceil((window_height - viewport_height) * (metrics.viewport_grav_y or 0.5))
+
   Layout.viewport_width = viewport_width
   Layout.viewport_height = viewport_height
-  Layout.projection_width = projection_width
-  Layout.projection_height = projection_height
-
-  Layout.viewport_grav_x = metrics.viewport_grav_x or 0.5
-  Layout.viewport_grav_y = metrics.viewport_grav_y or 0.5
-  Layout.gui_grav_x = metrics.gui_grav_x or 0.0
-  Layout.gui_grav_y = metrics.gui_grav_y or 0.0
-  Layout.projection_grav_x = metrics.projection_grav_x or 0.0
-  Layout.projection_grav_y = metrics.projection_grav_y or 0.0
-
-  viewport_origin_x = metrics.viewport_origin_x or
-    math.ceil((window_width - viewport_width) * Layout.viewport_grav_x)
-  viewport_origin_y = metrics.viewport_origin_y or
-    math.ceil((window_height - viewport_height) * Layout.viewport_grav_y)
   Layout.viewport_origin_x = viewport_origin_x
   Layout.viewport_origin_y = viewport_origin_y
 
-  projection_scale_x = projection_width / viewport_width
-  projection_scale_y = projection_height / viewport_height
-  projection_origin_x = viewport_width * Layout.projection_grav_x
-  projection_origin_y = viewport_height * Layout.projection_grav_y
-  Layout.projection_scale_x = projection_scale_x
-  Layout.projection_scale_y = projection_scale_y
+  projection_left = metrics.projection_left
+  projection_right = metrics.projection_right
+  projection_bottom = metrics.projection_bottom
+  projection_top = metrics.projection_top
+
+  if not projection_left and not projection_right and not projection_bottom and not projection_top then
+    local projection_matrix = metrics.projection
+    if projection_matrix then
+      local inv_projection = vmath.inv(projection_matrix)
+      local bottom_left = inv_projection * vmath.vector4(-1, -1, 0, 1)
+      local top_right = inv_projection * vmath.vector4(1, 1, 0, 1)
+      projection_left = bottom_left.x
+      projection_bottom = bottom_left.y
+      projection_right = top_right.x
+      projection_top = top_right.y
+      projection = projection_matrix
+    else
+      projection_left = 0
+      projection_bottom = 0
+      projection_right = design_width
+      projection_top = design_height
+    end
+  end
+
+  projection_width = projection_right - projection_left
+  projection_height = projection_top - projection_bottom
+  Layout.projection_width = projection_width
+  Layout.projection_height = projection_height
+  Layout.projection_left = projection_left
+  Layout.projection_right = projection_right
+  Layout.projection_top = projection_top
+  Layout.projection_bottom = projection_bottom
+
+  viewport_to_projection_scale_x = projection_width / viewport_width
+  viewport_to_projection_scale_y = projection_height / viewport_height
+  projection_to_viewport_scale_x = viewport_width / projection_width
+  projection_to_viewport_scale_y = viewport_height / projection_height
+  Layout.viewport_to_projection_scale_x = viewport_to_projection_scale_x
+  Layout.viewport_to_projection_scale_y = viewport_to_projection_scale_y
+  Layout.projection_to_viewport_scale_x = projection_to_viewport_scale_x
+  Layout.projection_to_viewport_scale_y = projection_to_viewport_scale_y
+
+  projection_grav_x = -projection_left / projection_width
+  projection_grav_y = -projection_bottom / projection_height
 
   design_offset_x = -viewport_origin_x * (design_width / window_width)
   design_offset_y = -viewport_origin_y * (design_height / window_height)
@@ -79,17 +122,21 @@ Layout.set_metrics({
 })
 
 function Layout.get_projection_matrix()
-  local offset_x = -projection_width * Layout.projection_grav_x;
-  local offset_y = -projection_height * Layout.projection_grav_y;
-  return vmath.matrix4_orthographic(
-    offset_x, offset_x + projection_width,
-    offset_y, offset_y + projection_height,
-    -1, 1
-  )
+  if not projection then
+    projection = vmath.matrix4_orthographic(
+      projection_left, projection_right,
+      projection_bottom, projection_top,
+      -1, 1
+    )
+  end
+  return projection
 end
 
 function Layout.get_gui_projection_matrix()
-  return vmath.matrix4_orthographic(0, viewport_width, 0, viewport_height, -1, 1)
+  if not gui_projection then
+    gui_projection = vmath.matrix4_orthographic(0, viewport_width, 0, viewport_height, -1, 1)
+  end
+  return gui_projection
 end
 
 -- Conversion functions
@@ -113,12 +160,16 @@ end
 Layout.viewport_to_window = viewport_to_window
 
 local function viewport_to_projection(x, y)
-  return (x - projection_origin_x) * projection_scale_x, (y - projection_origin_y) * projection_scale_y
+  local new_x = x * viewport_to_projection_scale_x + projection_left
+  local new_y = y * viewport_to_projection_scale_y + projection_bottom
+  return new_x, new_y
 end
 Layout.viewport_to_projection = viewport_to_projection
 
 local function projection_to_viewport(x, y)
-  return (x / projection_scale_x) + projection_origin_x, (y / projection_scale_y) + projection_origin_y
+  local new_x = (x - projection_left) * projection_to_viewport_scale_x
+  local new_y = (y - projection_bottom) * projection_to_viewport_scale_y
+  return new_x, new_y
 end
 Layout.projection_to_viewport = projection_to_viewport
 
@@ -162,10 +213,10 @@ function Layout.new(opts)
   self.orig_height = opts and opts.height or design_height
   self.get_metrics = opts and opts.get_metrics or
     (is_go and Layout.get_projection_metrics or Layout.get_viewport_metrics)
-  self.grav_x = opts and opts.grav_x or
-    (is_go and Layout.projection_grav_x or Layout.gui_grav_x)
-  self.grav_y = opts and opts.grav_y or
-    (is_go and Layout.projection_grav_y or Layout.gui_grav_y)
+  self.grav_x = opts and opts.grav_x
+  self.grav_y = opts and opts.grav_y
+  self.design_grav_x = self.grav_x or Layout.design_grav_x
+  self.design_grav_y = self.grav_y or Layout.design_grav_y
 
   self.len = 0
   self.nodes = {}
@@ -246,14 +297,18 @@ function Layout.__index:place(width, height)
   local scale_x = width / orig_width
   local scale_y = height / orig_height
   local is_go = self.is_go
-  local global_grav_x = self.grav_x
-  local global_grav_y = self.grav_y
+  local global_grav_x = self.grav_x or (is_go and projection_grav_x or 0.0)
+  local global_grav_y = self.grav_y or (is_go and projection_grav_y or 0.0)
+  local orig_global_grav_x = self.design_grav_x
+  local orig_global_grav_y = self.design_grav_y
 
   for i, node in ipairs(self.nodes) do
     local grav_x = node.grav_x - global_grav_x
     local grav_y = node.grav_y - global_grav_y
+    local orig_grav_x = node.grav_x - orig_global_grav_x
+    local orig_grav_y = node.grav_y - orig_global_grav_y
     local scale = node.scale_by(width, height, orig_width, orig_height, scale_x, scale_y)
-    local orig_pivot = vmath.vector3(orig_width * grav_x, orig_height * grav_y, 0.0)
+    local orig_pivot = vmath.vector3(orig_width * orig_grav_x, orig_height * orig_grav_y, 0.0)
     local pivot = vmath.vector3(width * grav_x, height * grav_y, 0.0)
 
     local new_pos = scale * (node.position - orig_pivot) + pivot

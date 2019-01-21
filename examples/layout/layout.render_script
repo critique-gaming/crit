@@ -29,16 +29,38 @@ local function stretch_projection(near, far)
     return vmath.matrix4_orthographic(0, render.get_width(), 0, render.get_height(), near, far)
 end
 
-local function configure_layout()
-  -- Ideally, we should pass the 4 left/right/top/bottom values used in
-  -- vmath.matrix4_orthographic to calculate the projection matrix,
-  -- but passing the whole projection matrix also works for convenience
-  -- and Layout will derive them (with some tiny mathematical errors)
-  Layout.set_metrics({
-    window_width = render.get_window_width(),
-    window_height = render.get_window_height(),
-    projection = fixed_fit_projection(-1, 1),
-  })
+local function configure_layout(self)
+    if self.black_bars then
+        local design_width = render.get_width()
+        local design_height = render.get_height()
+        local window_width = render.get_window_width()
+        local window_height = render.get_window_height()
+
+        local zoom = math.min(window_width / design_width, window_height / design_height)
+        local viewport_width = design_width * zoom
+        local viewport_height = design_height * zoom
+
+        Layout.set_metrics({
+            window_width = window_width,
+            window_height = window_height,
+            viewport_width = viewport_width,
+            viewport_height = viewport_height,
+            projection_left = 0,
+            projection_bottom = 0,
+            projection_right = design_width,
+            projection_top = design_height,
+        })
+    else
+        -- Ideally, we should pass in the 4 left/right/top/bottom values used in
+        -- vmath.matrix4_orthographic to calculate the projection matrix (like the above example),
+        -- but, for convenience, passing the whole projection matrix also works
+        -- and Layout will derive them (with some tiny mathematical errors)
+        Layout.set_metrics({
+            window_width = render.get_window_width(),
+            window_height = render.get_window_height(),
+            projection = fixed_fit_projection(-1, 1),
+        })
+    end
 end
 
 function init(self)
@@ -55,7 +77,8 @@ function init(self)
 
     self.view = vmath.matrix4()
 
-    configure_layout()
+    self.black_bars = false
+    configure_layout(self)
 end
 
 function update(self)
@@ -63,7 +86,11 @@ function update(self)
     render.set_stencil_mask(0xff)
     render.clear({[render.BUFFER_COLOR_BIT] = self.clear_color, [render.BUFFER_DEPTH_BIT] = 1, [render.BUFFER_STENCIL_BIT] = 0})
 
-    render.set_viewport(0, 0, render.get_window_width(), render.get_window_height())
+    -- Setting the viewport from Layout
+    render.set_viewport(
+        Layout.viewport_origin_x, Layout.viewport_origin_y,
+        Layout.viewport_width, Layout.viewport_height
+    )
     render.set_view(self.view)
 
     render.set_depth_mask(false)
@@ -101,7 +128,11 @@ function on_message(self, message_id, message)
     elseif message_id == hash("set_view_projection") then
         self.view = message.view
     elseif message_id == hash("window_resized") then
-      configure_layout()
-      dispatcher.dispatch("window_change_size")
+        configure_layout(self)
+        dispatcher.dispatch("window_change_size")
+    elseif message_id == hash("toggle_black_bars") then
+        self.black_bars = not self.black_bars
+        configure_layout(self)
+        dispatcher.dispatch("window_change_size")
     end
 end

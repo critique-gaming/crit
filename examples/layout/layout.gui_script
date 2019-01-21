@@ -1,0 +1,44 @@
+local Layout = require "crit.layout"
+local dispatcher = require "crit.dispatcher"
+
+local h_window_change_size = hash("window_change_size")
+local h_key_space = hash("key_space")
+
+function init(self)
+	self.layout = Layout.new()
+	self.layout:add_node(gui.get_node("background"), { resize_x = true, resize_y = true })
+	self.layout:add_node(gui.get_node("top_left"), { grav_x = 0, grav_y = 1 })
+	self.layout:add_node(gui.get_node("top_right"), { grav_x = 1, grav_y = 1 })
+	self.layout:add_node(gui.get_node("bottom_left"), { grav_x = 0, grav_y = 0 })
+	self.layout:add_node(gui.get_node("bottom_right"), { grav_x = 1, grav_y = 0 })
+	self.layout:add_node(gui.get_node("center"), { grav_x = 0.5, grav_y = 0.5 })
+	self.layout:add_node(gui.get_node("top"), { grav_x = 0.5, grav_y = 1 })
+	self.layout:add_node(gui.get_node("bottom"), { grav_x = 0.5, grav_y = -1 })
+	self.layout:add_node(gui.get_node("left"), { grav_x = 0, grav_y = 0.5 })
+	self.layout:add_node(gui.get_node("right"), { grav_x = 1, grav_y = 0.5 })
+
+	self.sub_id = dispatcher.subscribe({ h_window_change_size })
+
+	msg.post(".", "acquire_input_focus")
+end
+
+function final(self)
+	dispatcher.unsubscribe(h_window_change_size)
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == h_window_change_size then
+		self.layout:place()
+	end
+end
+
+function on_input(self, action_id, action)
+	if action_id == h_key_space and action.pressed then
+		msg.post("@render:", "toggle_black_bars")
+	end
+end
+
+function on_reload(self)
+	-- Add input-handling code here
+	-- Remove this function if not needed
+end

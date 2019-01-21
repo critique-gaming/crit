@@ -22,7 +22,7 @@ function init(self)
 end
 
 function final(self)
-	dispatcher.unsubscribe(h_window_change_size)
+	dispatcher.unsubscribe(self.sub_id)
 end
 
 function on_message(self, message_id, message, sender)

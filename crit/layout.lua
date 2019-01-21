@@ -46,7 +46,6 @@ local projection_top, projection_bottom
 
 local viewport_to_projection_scale_x, viewport_to_projection_scale_y
 local projection_to_viewport_scale_x, projection_to_viewport_scale_y
-local projection_grav_x, projection_grav_y
 
 function Layout.set_metrics(metrics)
   window_width = metrics.window_width
@@ -115,9 +114,6 @@ function Layout.set_metrics(metrics)
   Layout.viewport_to_projection_scale_y = viewport_to_projection_scale_y
   Layout.projection_to_viewport_scale_x = projection_to_viewport_scale_x
   Layout.projection_to_viewport_scale_y = projection_to_viewport_scale_y
-
-  projection_grav_x = -projection_left / projection_width
-  projection_grav_y = -projection_bottom / projection_height
 
   design_offset_x = -viewport_origin_x * (design_width / window_width)
   design_offset_y = -viewport_origin_y * (design_height / window_height)

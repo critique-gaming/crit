@@ -13,7 +13,6 @@ function init(self)
 	self.layout:add_node(gui.get_node("bottom_right"), { grav_x = 1, grav_y = 0 })
 	self.layout:add_node(gui.get_node("center"), { grav_x = 0.5, grav_y = 0.5 })
 	self.layout:add_node(gui.get_node("top"), { grav_x = 0.5, grav_y = 1 })
-	self.layout:add_node(gui.get_node("bottom"), { grav_x = 0.5, grav_y = -1 })
 	self.layout:add_node(gui.get_node("left"), { grav_x = 0, grav_y = 0.5 })
 	self.layout:add_node(gui.get_node("right"), { grav_x = 1, grav_y = 0.5 })
 
@@ -36,9 +35,4 @@ function on_input(self, action_id, action)
 	if action_id == h_key_space and action.pressed then
 		msg.post("@render:", "toggle_black_bars")
 	end
-end
-
-function on_reload(self)
-	-- Add input-handling code here
-	-- Remove this function if not needed
 end

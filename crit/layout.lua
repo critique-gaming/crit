@@ -9,8 +9,15 @@ local design_height = tonumber(sys.get_config("display.height", "640"))
 Layout.design_width = design_width
 Layout.design_height = design_height
 
-Layout.design_grav_x = 0.0
-Layout.design_grav_y = 0.0
+Layout.design_gui_left = 0.0
+Layout.design_gui_bottom = 0.0
+Layout.design_gui_right = design_width
+Layout.design_gui_top = design_height
+
+Layout.design_go_left = 0.0
+Layout.design_go_bottom = 0.0
+Layout.design_go_right = design_width
+Layout.design_go_top = design_height
 
 -- There are 4 coordinate spaces:
 -- 1) Window space: Raw screen coordinates inside the window. Origin is bottom left.
@@ -141,14 +148,6 @@ end
 
 -- Conversion functions
 
-function Layout.get_viewport_metrics()
-  return viewport_width, viewport_height
-end
-
-function Layout.get_projection_metrics()
-  return projection_width, projection_height
-end
-
 local function window_to_viewport(x, y)
   return x - viewport_origin_x, y - viewport_origin_y
 end
@@ -202,6 +201,14 @@ end
 
 -- Layout instances
 
+local function get_gui_metrics()
+  return 0, 0, viewport_width, viewport_height
+end
+
+local function get_go_metrics()
+  return projection_left, projection_bottom, projection_right, projection_top
+end
+
 function Layout.new(opts)
   local self = {}
   setmetatable(self, Layout)
@@ -209,14 +216,28 @@ function Layout.new(opts)
   local is_go = opts and opts.is_go or false
 
   self.is_go = is_go
-  self.orig_width = opts and opts.width or design_width
-  self.orig_height = opts and opts.height or design_height
   self.get_metrics = opts and opts.get_metrics or
-    (is_go and Layout.get_projection_metrics or Layout.get_viewport_metrics)
-  self.grav_x = opts and opts.grav_x
-  self.grav_y = opts and opts.grav_y
-  self.design_grav_x = self.grav_x or Layout.design_grav_x
-  self.design_grav_y = self.grav_y or Layout.design_grav_y
+    (is_go and get_go_metrics or get_gui_metrics)
+
+  local left, bottom, right, top
+  if is_go then
+    left = (opts and opts.design_left) or Layout.design_go_left
+    bottom = (opts and opts.design_bottom) or Layout.design_go_bottom
+    right = (opts and opts.design_right) or Layout.design_go_right
+    top = (opts and opts.design_top) or Layout.design_go_top
+  else
+    left = (opts and opts.design_left) or Layout.design_gui_left
+    bottom = (opts and opts.design_bottom) or Layout.design_gui_bottom
+    right = (opts and opts.design_right) or Layout.design_gui_right
+    top = (opts and opts.design_top) or Layout.design_gui_top
+  end
+
+  local width = right - left
+  local height = top - bottom
+  self.design_width = width
+  self.design_height = height
+  self.design_grav_x = -left / width
+  self.design_grav_y = -bottom / height
 
   self.len = 0
   self.nodes = {}
@@ -229,21 +250,17 @@ function Layout.new(opts)
   return self
 end
 
-function Layout.hook(self, message)
-  self.layout:place()
-end
-
 local scale_func = {}
-function scale_func.x(width, height, original_width, original_height, scale_x)
+function scale_func.x(width, height, design_width_, design_height_, scale_x)
   return scale_x
 end
-function scale_func.y(width, height, original_width, original_height, scale_x, scale_y)
+function scale_func.y(width, height, design_width_, design_height_, scale_x, scale_y)
   return scale_y
 end
-function scale_func.fit(width, height, original_width, original_height, scale_x, scale_y)
+function scale_func.fit(width, height, design_width_, design_height_, scale_x, scale_y)
   return math.min(scale_x, scale_y)
 end
-function scale_func.cover(width, height, original_width, original_height, scale_x, scale_y)
+function scale_func.cover(width, height, design_width_, design_height_, scale_x, scale_y)
   return math.max(scale_x, scale_y)
 end
 function scale_func.none()
@@ -268,13 +285,21 @@ function Layout.__index:add_node(node, opts)
   local resize = opts.resize_x or opts.resize_y or false
   local is_go = self.is_go
 
+  local grav_x = opts.grav_x or 0.5
+  local grav_y = opts.grav_y or 0.5
+
+  local design_grav_x = grav_x - self.design_grav_x
+  local design_grav_y = grav_y - self.design_grav_y
+  local pivot = vmath.vector3(self.design_width * design_grav_x, self.design_height * design_grav_y, 0.0)
+
   local node_spec = {
     node = node,
     position = opts.position or (is_go and go.get_position(node) or gui.get_position(node)),
     scale = is_go and go.get_scale(node) or gui.get_scale(node),
     size = resize and (is_go and go.get(node, h_size) or gui.get_size(node)),
-    grav_x = opts.grav_x or 0.5,
-    grav_y = opts.grav_y or 0.5,
+    grav_x = grav_x,
+    grav_y = grav_y,
+    pivot = pivot,
     scale_by = scale_by,
     resize_x = opts.resize_x or false,
     resize_y = opts.resize_y or false,
@@ -284,34 +309,28 @@ function Layout.__index:add_node(node, opts)
   return node_spec
 end
 
-function Layout.__index:place(width, height)
-  if width == 0 then width = false end
-  if height == 0 then height = false end
+function Layout.__index:place()
+  local left, bottom, right, top = self.get_metrics()
+  local width = right - left
+  local height = top - bottom
 
-  local m_width, m_height = self.get_metrics()
+  local design_width_ = self.design_width
+  local design_height_ = self.design_height
+  local scale_x = width / design_width_
+  local scale_y = height / design_height_
 
-  width = width or m_width
-  height = height or m_height
-  local orig_height = self.orig_height
-  local orig_width = self.orig_width
-  local scale_x = width / orig_width
-  local scale_y = height / orig_height
+  local global_grav_x = -left / width
+  local global_grav_y = -bottom / height
+
   local is_go = self.is_go
-  local global_grav_x = self.grav_x or (is_go and projection_grav_x or 0.0)
-  local global_grav_y = self.grav_y or (is_go and projection_grav_y or 0.0)
-  local orig_global_grav_x = self.design_grav_x
-  local orig_global_grav_y = self.design_grav_y
 
   for i, node in ipairs(self.nodes) do
     local grav_x = node.grav_x - global_grav_x
     local grav_y = node.grav_y - global_grav_y
-    local orig_grav_x = node.grav_x - orig_global_grav_x
-    local orig_grav_y = node.grav_y - orig_global_grav_y
-    local scale = node.scale_by(width, height, orig_width, orig_height, scale_x, scale_y)
-    local orig_pivot = vmath.vector3(orig_width * orig_grav_x, orig_height * orig_grav_y, 0.0)
+    local scale = node.scale_by(width, height, design_width_, design_height_, scale_x, scale_y)
     local pivot = vmath.vector3(width * grav_x, height * grav_y, 0.0)
 
-    local new_pos = scale * (node.position - orig_pivot) + pivot
+    local new_pos = scale * (node.position - node.pivot) + pivot
     local new_scale = node.scale * scale
     local node_id = node.node
 
@@ -329,10 +348,10 @@ function Layout.__index:place(width, height)
       local size_x = node.size.x
       local size_y = node.size.y
       if resize_x then
-        size_x = size_x + width / scale - orig_width
+        size_x = size_x + width / scale - design_width_
       end
       if resize_y then
-        size_y = size_y + height / scale - orig_height
+        size_y = size_y + height / scale - design_height_
       end
 
       local new_size = vmath.vector3(size_x, size_y, node.size.z)

@@ -250,14 +250,14 @@ function scale_func.none()
   return 1
 end
 
-Layout.scale_by_default = "x"
+Layout.default_scale_by = "fit"
 
 local empty = {}
 function Layout.__index:add_node(node, opts)
   opts = opts or empty
   self.len = self.len + 1
 
-  local scale_by = opts.scale_by or Layout.scale_by_default
+  local scale_by = opts.scale_by or Layout.default_scale_by
   if type(scale_by) == "number" then
     local const = scale_by
     scale_by = function () return const end

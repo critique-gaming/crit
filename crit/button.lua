@@ -125,7 +125,7 @@ function Button.new(node, self)
   local is_sprite = self.is_sprite or false
   self.is_sprite = is_sprite
 
-  self.state = Button.STATE_DEFAULT
+  self.state = STATE_DEFAULT
   self.mouse_can_press = false
   self.mouse_down = false
   self.confirm_down_action = nil
@@ -304,13 +304,13 @@ function Button.__index:switch_input_method()
 end
 
 function Button.__index:cancel_touch()
-  if self.state == Button.STATE_DISABLED then
+  if self.state == STATE_DISABLED then
     return
   end
   self.mouse_down = false
   self.mouse_can_press = false
   self.confirm_down_action = nil
-  Button_set_state(self, Button.STATE_DEFAULT)
+  Button_set_state(self, STATE_DEFAULT)
 end
 
 local function Button_mapped_action_id_to_navigation_action(mapped_action_id)
@@ -330,7 +330,7 @@ end
 
 local Button__on_input
 function Button.__index:on_input(action_id, action)
-  if self.state == Button.STATE_DISABLED then
+  if self.state == STATE_DISABLED then
     return
   end
 
@@ -344,16 +344,16 @@ function Button__on_input(self, action_id, action)
         return self.mouse_can_press
       end
       local is_hovering = self:pick(action)
-      Button_set_state(self, is_hovering and Button.STATE_HOVER or Button.STATE_DEFAULT)
+      Button_set_state(self, is_hovering and STATE_HOVER or STATE_DEFAULT)
     end
 
   elseif action_id == self.confirm_down_action then
     if action.released then
       self.confirm_down_action = nil
-      Button_set_state(self, Button.STATE_DEFAULT, true)
+      Button_set_state(self, STATE_DEFAULT, true)
       if self.action then self:action() end
     else
-      Button_set_state(self, Button.STATE_PRESSED)
+      Button_set_state(self, STATE_PRESSED)
     end
     return true
 
@@ -367,8 +367,8 @@ function Button__on_input(self, action_id, action)
       if action.released then
         self.mouse_down = false
         local new_state = (is_hovering and not is_mobile and self.keep_hover)
-          and Button.STATE_HOVER
-          or Button.STATE_DEFAULT
+          and STATE_HOVER
+          or STATE_DEFAULT
         local did_click = self.mouse_can_press and is_hovering
         Button_set_state(self, new_state, did_click)
         if did_click then
@@ -380,7 +380,7 @@ function Button__on_input(self, action_id, action)
           self.mouse_can_press = is_hovering
           self.mouse_down = true
         end
-        Button_set_state(self, (is_hovering and self.mouse_can_press) and Button.STATE_PRESSED or Button.STATE_DEFAULT)
+        Button_set_state(self, (is_hovering and self.mouse_can_press) and STATE_PRESSED or STATE_DEFAULT)
       end
       return self.mouse_can_press
 
@@ -390,7 +390,7 @@ function Button__on_input(self, action_id, action)
       if nav_action == NAVIGATE_CONFIRM then
         if action.pressed and self.action then
           self.confirm_down_action = action_id
-          Button_set_state(self, Button.STATE_PRESSED)
+          Button_set_state(self, STATE_PRESSED)
           return true
         end
       elseif action.pressed or action.repeated then
@@ -400,7 +400,7 @@ function Button__on_input(self, action_id, action)
 
     elseif action.pressed and self.action and self._shortcut_actions[action_id] then
       self.confirm_down_action = action_id
-      Button_set_state(self, Button.STATE_PRESSED)
+      Button_set_state(self, STATE_PRESSED)
       return true
     end
   end
@@ -410,7 +410,7 @@ function Button.__index:set_enabled(enabled)
   if not enabled then
     self:cancel_focus()
   end
-  Button_set_state(self, enabled and Button.STATE_DEFAULT or Button.STATE_DISABLED)
+  Button_set_state(self, enabled and STATE_DEFAULT or STATE_DISABLED)
   if not enabled then
     self.mouse_can_press = false
     self.mouse_down = false
@@ -474,11 +474,11 @@ end
 
 function Button.fade_on_state_change(self, state)
   local value
-  if state == Button.STATE_PRESSED then
+  if state == STATE_PRESSED then
     value = self.pressed_opacity or 0.4
-  elseif state == Button.STATE_HOVER then
+  elseif state == STATE_HOVER then
     value = self.hover_opacity or 0.6
-  elseif state == Button.STATE_DISABLED then
+  elseif state == STATE_DISABLED then
     value = self.disabled_opacity or 0.4
   else
     value = self.idle_opacity or 1.0
@@ -544,11 +544,11 @@ end
 
 function Button.darken_on_state_change(self, state)
   local value
-  if state == Button.STATE_PRESSED then
+  if state == STATE_PRESSED then
     value = self.pressed_opacity or 0.4
-  elseif state == Button.STATE_HOVER then
+  elseif state == STATE_HOVER then
     value = self.hover_opacity or 0.6
-  elseif state == Button.STATE_DISABLED then
+  elseif state == STATE_DISABLED then
     value = self.disabled_opacity or 0.4
   else
     value = self.idle_opacity or 1.0
@@ -596,11 +596,11 @@ end
 
 function Button.flipbook_on_state_change(self, state)
   local animation
-  if state == Button.STATE_PRESSED then
+  if state == STATE_PRESSED then
     animation = self.pressed_animation or self.default_animation
-  elseif state == Button.STATE_HOVER then
+  elseif state == STATE_HOVER then
     animation = self.hover_animation or self.default_animation
-  elseif state == Button.STATE_DISABLED then
+  elseif state == STATE_DISABLED then
     animation = self.disabled_animation or self.default_animation
   else
     animation = self.default_animation

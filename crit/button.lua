@@ -594,6 +594,26 @@ function Button.darken_on_state_change(self, state)
   end
 end
 
+function Button.flipbook_on_state_change(self, state)
+  local animation
+  if state == Button.STATE_PRESSED then
+    animation = self.pressed_animation or self.default_animation
+  elseif state == Button.STATE_HOVER then
+    animation = self.hover_animation or self.default_animation
+  elseif state == Button.STATE_DISABLED then
+    animation = self.disabled_animation or self.default_animation
+  else
+    animation = self.default_animation
+  end
+  if animation then
+    if self.is_sprite then
+      sprite.play_flipbook(self.node, animation)
+    else
+      gui.play_flipbook(self.node, animation)
+    end
+  end
+end
+
 Button.default_on_state_change = Button.fade_on_state_change
 Button.default_on_focus_change = Button.focus_ring_on_focus_change
 

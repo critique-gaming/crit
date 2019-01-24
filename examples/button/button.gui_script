@@ -37,6 +37,15 @@ function init(self)
 	-- still switch between STATE_DEFAULT and STATE_HOVERED
 	self.no_action_button = Button.new(gui.get_node("no_action"), {})
 
+	-- A button with keep_hover = true, after it is un-pressed will go back to
+	-- STATE_HOVER instead of STATE_DEFAULT
+	self.keep_hover_button = Button.new(gui.get_node("keep_hover"), {
+		keep_hover = true,
+		action = function ()
+			print("Keep hover button pressed");
+		end,
+	})
+
 	self.custom_sprites_button = Button.new(gui.get_node("custom_sprites"), {
 		default_animation = hash("buttons_default"),
 		hover_animation = hash("buttons_hover"),
@@ -96,6 +105,9 @@ function on_input(self, action_id, action)
 		return true
 	end
 	if self.disabled_button:on_input(action_id, action) then
+		return true
+	end
+	if self.keep_hover_button:on_input(action_id, action) then
 		return true
 	end
 	if self.custom_sprites_button:on_input(action_id, action) then

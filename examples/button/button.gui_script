@@ -1,0 +1,107 @@
+local Button = require "crit.button"
+
+function init(self)
+	self.simple_button = Button.new(gui.get_node("simple"), {
+		action = function ()
+			print("Simple button pressed");
+		end,
+	})
+
+	self.darken_button = Button.new(gui.get_node("darken"), {
+		on_state_change = Button.darken_on_state_change,
+		faded_nodes = {
+			-- Darken both the node and the label
+			gui.get_node("darken"), gui.get_node("darken_label")
+		},
+		action = function ()
+			print("Darkening button pressed");
+		end,
+	})
+
+	self.shortcut_button = Button.new(gui.get_node("shortcut"), {
+		shortcut_actions = { hash("key_space") },
+		action = function ()
+			print("Shortcut button pressed");
+		end,
+	})
+
+	-- Disabled buttons stay in the STATE_DISABLED state and don't react to any input
+	self.disabled_button = Button.new(gui.get_node("disabled"), {
+		action = function ()
+			print("Disabled button pressed. Should never happen");
+		end,
+	})
+	self.disabled_button:set_enabled(false)
+
+	-- A button with no action won't go into the STATE_PRESSED state, but will
+	-- still switch between STATE_DEFAULT and STATE_HOVERED
+	self.no_action_button = Button.new(gui.get_node("no_action"), {})
+
+	self.custom_sprites_button = Button.new(gui.get_node("custom_sprites"), {
+		default_animation = hash("buttons_default"),
+		hover_animation = hash("buttons_hover"),
+		pressed_animation = hash("buttons_pressed"),
+		on_state_change = Button.flipbook_on_state_change,
+		action = function ()
+			print("Custom sprites button pressed");
+		end,
+	})
+
+	-- This is a custom button showing that buttons aren't necessaily tied to a GUI node.
+	-- In fact, they're completely presentation agnostic (just a state machine that handles input).
+	-- Here we implement a custom pick function which tells the button if it's
+	-- hovered or not and a custom on_state_change which handles button presentation.
+	self.custom_pick_button = Button.new(nil, {
+		pick = function (button, action)
+			return action.x >= 480 -- Hovering over the left part of the screen counts as hover
+		end,
+		action = function ()
+			print("Shortcut button pressed");
+		end,
+		label_node = gui.get_node("custom_pick"),
+		default_text = "This entire half a screen is a button",
+		hover_text = "This entire half a screen is a hovered button",
+		pressed_text = "This entire half a screen is a pressed button",
+		on_state_change = function (button, new_state)
+			local text = ""
+			if new_state == Button.STATE_DEFAULT then
+				text = button.default_text
+			elseif new_state == Button.STATE_HOVER then
+				text = button.hover_text
+			elseif new_state == Button.STATE_PRESSED then
+				text = button.pressed_text
+			end
+			gui.set_text(button.label_node, text)
+		end,
+	})
+
+	msg.post(".", "acquire_input_focus")
+	msg.post("@render:", "clear_color", { color = vmath.vector4(0.3, 0, 0, 1.0) })
+end
+
+function on_input(self, action_id, action)
+	if self.simple_button:on_input(action_id, action) then
+		return true
+	end
+	if self.darken_button:on_input(action_id, action) then
+		return true
+	end
+	if self.darken_button:on_input(action_id, action) then
+		return true
+	end
+	if self.shortcut_button:on_input(action_id, action) then
+		return true
+	end
+	if self.no_action_button:on_input(action_id, action) then
+		return true
+	end
+	if self.disabled_button:on_input(action_id, action) then
+		return true
+	end
+	if self.custom_sprites_button:on_input(action_id, action) then
+		return true
+	end
+	if self.custom_pick_button:on_input(action_id, action) then
+		return true
+	end
+end

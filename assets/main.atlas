@@ -4,6 +4,15 @@ images {
 images {
   image: "/assets/button.png"
 }
+images {
+  image: "/assets/buttons_default.png"
+}
+images {
+  image: "/assets/buttons_hover.png"
+}
+images {
+  image: "/assets/buttons_pressed.png"
+}
 margin: 2
 extrude_borders: 2
 inner_padding: 0

@@ -1,0 +1,60 @@
+local dispatcher = require "crit.dispatcher"
+local input_state = require "crit.input_state"
+local Button = require "crit.button"
+local analog_to_digital = require "crit.analog_to_digital"
+
+local h_click = hash("click")
+local h_switch_input_method = hash("switch_input_method")
+
+local gamepad_actions = {
+	[hash("gamepad_lpad_left")] = true,
+	[hash("gamepad_lpad_right")] = true,
+	[hash("gamepad_lpad_up")] = true,
+	[hash("gamepad_lpad_down")] = true,
+	[hash("gamepad_rpad_left")] = true,
+	[hash("gamepad_rpad_right")] = true,
+	[hash("gamepad_rpad_up")] = true,
+	[hash("gamepad_rpad_down")] = true,
+	[hash("gamepad_start")] = true,
+	[hash("gamepad_back")] = true,
+	[hash("gamepad_guide")] = true,
+	[hash("gamepad_rshoulder")] = true,
+	[hash("gamepad_lshoulder")] = true,
+	[hash("gamepad_ltrigger")] = true,
+	[hash("gamepad_rtrigger")] = true,
+	[hash("gamepad_lstick_click")] = true,
+	[hash("gamepad_lstick_digital_left")] = true,
+	[hash("gamepad_lstick_digital_right")] = true,
+	[hash("gamepad_lstick_digital_up")] = true,
+	[hash("gamepad_lstick_digital_down")] = true,
+	[hash("gamepad_rstick_click")] = true,
+	[hash("gamepad_rstick_digital_left")] = true,
+	[hash("gamepad_rstick_digital_right")] = true,
+	[hash("gamepad_rstick_digital_up")] = true,
+	[hash("gamepad_rstick_digital_down")] = true,
+}
+
+-- Override input_state.switch_input_method so that it dispatches  a message,
+-- so that other scripts can listen to it and react
+function input_state.switch_input_method(method, nav_action)
+	if input_state.input_method ~= method then
+		input_state.input_method = method
+		dispatcher.dispatch(h_switch_input_method, { input_method = method, nav_action = nav_action })
+	end
+end
+
+on_input = analog_to_digital.convert_on_input(function (self, action_id, action)
+	if action_id == nil or action_id == h_click then
+		-- If the mouse moves, switch to INPUT_METHOD_MOUSE
+		input_state.switch_input_method(input_state.INPUT_METHOD_MOUSE)
+	elseif gamepad_actions[action_id] and action.pressed then
+		-- If any gamepad button is pressed switch to INPUT_METHOD_GAMEPAD
+		if input_state.input_method ~= input_state.INPUT_METHOD_GAMEPAD then
+			local nav_action = Button.action_id_to_navigation_action(action_id)
+			if nav_action == Button.NAVIGATE_CONFIRM then
+				nav_action = nil
+			end
+			input_state.switch_input_method(input_state.INPUT_METHOD_GAMEPAD, nav_action)
+		end
+	end
+end)

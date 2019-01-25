@@ -1,0 +1,90 @@
+local Button = require "crit.button"
+local FocusGiver = require "crit.focus_giver"
+local dispatcher = require "crit.dispatcher"
+
+local h_switch_input_method = hash("switch_input_method")
+
+function init(self)
+	local buttons = {}
+	self.button = buttons
+	for i = 1, 5 do
+		local index = i
+		buttons[#buttons + 1] = Button.new(gui.get_node("button" .. index), {
+			keyboard_focus = true,
+			gamepad_focus = true,
+			focus_node = gui.get_node("focus" .. index), -- Used by the default on_focus_change
+			action = function ()
+				print("Button " .. index .. " pressed")
+			end,
+			-- Called when the current button is focused and a navigation button is pressed
+			-- Return true to confirm the focus change
+			on_pass_focus = function (button, nav_action)
+				if nav_action == Button.NAVIGATE_UP then
+					return index > 1 and buttons[index - 1]:focus()
+				elseif nav_action == Button.NAVIGATE_DOWN then
+					return index < #buttons and buttons[index + 1]:focus()
+				end
+			end,
+		})
+	end
+
+	self.focus_giver = FocusGiver.new({
+		-- When using mouse & keyboard, focus only comes after the first button press
+		allow_keyboard_empty_focus = true,
+		-- When using gamepad, there should always be something on the screen focused
+		allow_gamepad_empty_focus = false,
+		-- Called to initiate the first focus. Return true to confirm focusing
+		on_pass_focus = function (focus_giver, nav_action)
+			if nav_action == Button.NAVIGATE_UP then
+				return buttons[#buttons]:focus()
+			else
+				return buttons[1]:focus()
+			end
+		end
+	})
+
+	msg.post(".", "acquire_input_focus")
+	-- The input method switcher script needs to be at the top of the input stack
+	msg.post("input_method_switcher", "acquire_input_focus")
+
+	-- If empty focus is not allowed, initiate the first focus
+	self.focus_giver:try_focus_first()
+
+	self.sub_id = dispatcher.subscribe({ h_switch_input_method })
+end
+
+function final(self)
+	-- DON'T FORGET to unfocus all buttons before their destruction
+	-- If you forget, the default focus context will remain in the focused state forever.
+	-- (This is not necessary if the buttons belong to a temporary focus context)
+	for i, button in ipairs(self.button) do
+		button:cancel_focus()
+	end
+
+	dispatcher.unsubscribe(self.sub_id)
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == h_switch_input_method then
+		for i, button in ipairs(self.button) do
+			-- This will un-focus the button if the button was not configured to
+			-- suport focus in the new input state
+			button:switch_input_method()
+		end
+
+		-- The input method switch possibly happened as a result of the player
+		-- pressing a navigation button, which would result in a focus change
+		self.focus_giver:try_focus_first(message.nav_action)
+	end
+end
+
+function on_input(self, action_id, action)
+	for i, button in ipairs(self.button) do
+		if button:on_input(action_id, action) then
+			return true
+		end
+	end
+	if self.focus_giver:on_input(action_id, action) then
+		return true
+	end
+end

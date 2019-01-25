@@ -13,6 +13,9 @@ images {
 images {
   image: "/assets/buttons_pressed.png"
 }
+images {
+  image: "/assets/button_focus.png"
+}
 margin: 2
 extrude_borders: 2
 inner_padding: 0

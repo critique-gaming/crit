@@ -72,8 +72,10 @@ function on_message(self, message_id, message, sender)
 			button:switch_input_method()
 		end
 
-		-- The input method switch possibly happened as a result of the player
-		-- pressing a navigation button, which would result in a focus change
+		-- If empty focus is not allowed for the new input method, initiate the first focus.
+		-- Also, the input method switch possibly happened as a result of the player
+		-- pressing a navigation button, which would result in a focus change, so passing
+		-- the nav action through.
 		self.focus_giver:try_focus_first(message.nav_action)
 	end
 end

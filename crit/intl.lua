@@ -185,7 +185,6 @@ end
 
 local M, M_private = make_namespace("main")
 local namespaces = { main = M }
-setmetatable(namespaces, { __mode = "v" })
 
 local namespace_privates = { [M] = M_private }
 setmetatable(namespace_privates, { __mode = "k" })

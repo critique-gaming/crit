@@ -22,8 +22,7 @@ each designed to solve one specific problem. Use as much or as little as you nee
   * [The message dispatcher](./docs/dispatcher.md)
   * [Coroutine progression system](./docs/progression.md)
 * Input
-  * [Input methods and keyboard/gamepad focus](./docs/input_state.md)
-  * [Initiating first focus](./docs/focus_giver.md)
+  * [Keyboard/gamepad focus](./docs/focus.md)
   * [Analog to digital thumb stick conversion](./docs/analog_to_digital.md)
 * [Internationalisation](./docs/intl.md)
 * Utilities

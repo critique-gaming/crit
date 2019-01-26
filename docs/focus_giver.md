@@ -1,3 +1,0 @@
-# Initiating first focus
-
-> TODO

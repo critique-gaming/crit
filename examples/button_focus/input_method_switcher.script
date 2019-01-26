@@ -43,7 +43,7 @@ function input_state.switch_input_method(method, nav_action)
 	end
 end
 
-on_input = analog_to_digital.convert_on_input(function (self, action_id, action)
+on_input = analog_to_digital.wrap_on_input(function (self, action_id, action)
 	if action_id == nil or action_id == h_click then
 		-- If the mouse moves, switch to INPUT_METHOD_MOUSE
 		input_state.switch_input_method(input_state.INPUT_METHOD_MOUSE)

@@ -233,7 +233,7 @@ local function convert_action(instance, action_id, action, callback)
 end
 M.convert_action = convert_action
 
-function M.convert_on_input(callback)
+function M.wrap_on_input(callback)
   return function (instance, action_id, action)
     return convert_action(instance, action_id, action, callback)
   end

@@ -338,7 +338,9 @@ function Button.__index:on_input(action_id, action)
 end
 
 function Button__on_input(self, action_id, action)
-  if action_id == nil then
+  local confirm_down_action = self.confirm_down_action
+
+  if action_id == nil and not confirm_down_action then
     if not is_mobile then
       if self.mouse_down then
         return self.mouse_can_press
@@ -347,7 +349,7 @@ function Button__on_input(self, action_id, action)
       Button_set_state(self, is_hovering and STATE_HOVER or STATE_DEFAULT)
     end
 
-  elseif action_id == self.confirm_down_action then
+  elseif action_id == confirm_down_action then
     if action.released then
       self.confirm_down_action = nil
       Button_set_state(self, STATE_DEFAULT, true)
@@ -361,7 +363,7 @@ function Button__on_input(self, action_id, action)
     local mapped_action_id = input_map[action_id]
 
     if mapped_action_id == CLICK then
-      if not self.action then return end
+      if confirm_down_action or not self.action then return end
 
       local is_hovering = self:pick(action)
       if action.released then
@@ -370,6 +372,7 @@ function Button__on_input(self, action_id, action)
           and STATE_HOVER
           or STATE_DEFAULT
         local did_click = self.mouse_can_press and is_hovering
+        self.mouse_can_press = false
         Button_set_state(self, new_state, did_click)
         if did_click then
           self:action()
@@ -388,7 +391,7 @@ function Button__on_input(self, action_id, action)
       local nav_action, is_gamepad = Button_mapped_action_id_to_navigation_action(mapped_action_id)
 
       if nav_action == NAVIGATE_CONFIRM then
-        if action.pressed and self.action then
+        if action.pressed and self.action and not self.mouse_can_press then
           self.confirm_down_action = action_id
           Button_set_state(self, STATE_PRESSED)
           return true
@@ -398,7 +401,7 @@ function Button__on_input(self, action_id, action)
         return Button_pass_focus(self, input_method, nav_action)
       end
 
-    elseif action.pressed and self.action and self._shortcut_actions[action_id] then
+    elseif action.pressed and self.action and not self.mouse_can_press and self._shortcut_actions[action_id] then
       self.confirm_down_action = action_id
       Button_set_state(self, STATE_PRESSED)
       return true

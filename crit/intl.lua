@@ -143,13 +143,25 @@ local function make_namespace(namespace_id)
   local function select(options)
     if uninitialized then uninitialized_error() end
 
+    local is_function = type(options) == "function"
+
     for i, lang in ipairs(languages) do
-      local entry = options[lang]
+      local entry
+      if is_function then
+        entry = options(lang)
+      else
+        entry = options[lang]
+      end
       if entry ~= nil then return entry end
     end
 
     for i, lang in ipairs(fallback_languages) do
-      local entry = options[lang]
+      local entry
+      if is_function then
+        entry = options(lang)
+      else
+        entry = options[lang]
+      end
       if entry ~= nil then
         if warn_fallback then
           warn("Intl match not found for selection. Using fallback language")

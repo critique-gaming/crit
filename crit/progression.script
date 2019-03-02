@@ -57,7 +57,7 @@ function progression._load_function(id, co)
       factory.unload(factory_url)
     end
     if pending_load then
-      progression.resume_coroutine(co, func)
+      progression.resume(co, func)
     end
   end)
 
@@ -68,7 +68,7 @@ end
 
 function on_message(self, message_id, message, sender)
   if message_id == h_progression_init then
-    progression.start_coroutine(function ()
+    progression.detach(function ()
       local main = progression.load_function("main")
       main()
     end)
@@ -81,7 +81,7 @@ function on_message(self, message_id, message, sender)
   for co, handler in pairs(sub.handlers) do
     if handler(message_id, message) then
       progression._unsubscribe_from_message(message_id, co)
-      progression.resume_coroutine(co, message)
+      progression.resume(co, message)
     end
   end
 end

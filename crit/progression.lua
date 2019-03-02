@@ -6,14 +6,14 @@ local cleanup_handlers = {}
 local function run_cleanup_handlers(co)
   local handlers = cleanup_handlers[co]
   if handlers then
-    for k, handler in pairs(handlers) do
+    for _, handler in pairs(handlers) do
       handler()
     end
   end
   cleanup_handlers[co] = nil
 end
 
-function progression.create_coroutine(f)
+function progression.create_detached(f)
   local co
   co = coroutine.create(function (...)
     f(...)
@@ -23,13 +23,13 @@ function progression.create_coroutine(f)
   return co
 end
 
-function progression.start_coroutine(f, ...)
-  local co = progression.create_coroutine(f)
-  progression.resume_coroutine(co, ...)
+function progression.detach(f, ...)
+  local co = progression.create_detached(f)
+  progression.resume(co, ...)
   return co
 end
 
-function progression.resume_coroutine(co, ...)
+function progression.resume(co, ...)
   local result, cancel_handler = coroutine.resume(co, ...)
   if result then
     immediate_cancel_handlers[co] = cancel_handler
@@ -42,7 +42,7 @@ end
 local dead_coroutines = {}
 setmetatable(dead_coroutines, { __mode = 'k' }) -- Weak table
 
-function progression.cancel_coroutine(co)
+function progression.cancel(co)
   local cancel_handler = immediate_cancel_handlers[co]
   if cancel_handler then
     cancel_handler()
@@ -80,20 +80,20 @@ local function wake_waiting_threads(co)
   local threads_waiting = waiting_list[co]
   if threads_waiting then
     for waiting_co in pairs(threads_waiting) do
-      progression.resume_coroutine(waiting_co)
+      progression.resume(waiting_co)
     end
     waiting_list[co] = nil
   end
 end
 
-function progression.fork_paused(f)
+function progression.create_fork(f)
   local child
   local co = coroutine.running()
-  child = progression.create_coroutine(f)
+  child = progression.create_detached(f)
 
   -- When the parent terminates, the child gets cancelled
   progression.add_cleanup_handler(function ()
-    progression.cancel_coroutine(child)
+    progression.cancel(child)
   end, child)
 
   -- When the child terminates, wake threads waiting on join() and the parent doesn't need to cancel it anymore
@@ -106,8 +106,8 @@ function progression.fork_paused(f)
 end
 
 function progression.fork(f, ...)
-  local child = progression.fork_paused(f)
-  progression.resume_coroutine(child, ...)
+  local child = progression.create_fork(f)
+  progression.resume(child, ...)
   return child
 end
 
@@ -149,7 +149,7 @@ end
 function progression.wait(seconds)
   local co = coroutine.running()
   local sub_id = timer.delay(seconds, false, function ()
-    progression.resume_coroutine(co)
+    progression.resume(co)
   end)
   coroutine.yield(function ()
     timer.cancel(sub_id)

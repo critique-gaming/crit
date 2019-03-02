@@ -17,13 +17,13 @@ local function dot_challenge(dot_index)
 	timeout = progression.fork(function ()
 		progression.wait(2)
 		is_successful = false
-		progression.cancel_coroutine(challenge)
+		progression.cancel(challenge)
 	end)
 
 	challenge = progression.fork(function ()
 		local message = progression.wait_for_message(h_dot_click)
 		is_successful = message.dot_index == dot_index
-		progression.cancel_coroutine(timeout)
+		progression.cancel(timeout)
 	end)
 
 	progression.join(timeout)

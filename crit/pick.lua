@@ -10,24 +10,11 @@ local no_padding = {
 }
 
 function M.pick_sprite(url, x, y, padding)
-  local position = go.get_world_position(url)
-  local scale = go.get_world_scale(url)
-  local rotation = go.get_rotation(url) -- go.get_world_rotation seems to be broken when also scaling
+  local transform = go.get_world_transform(url)
+  local pos = vmath.inv(transform) * vmath.vector4(x, y, 0, 1)
+  x, y = pos.x, pos.y
+
   local size = go.get(url, h_size)
-
-  -- Undo position
-  x = x - position.x
-  y = y - position.y
-
-  -- Undo rotation
-  local direction = vmath.rotate(rotation, vmath.vector3(1, 0, 0))
-  local sin, cos = -direction.y, direction.x
-  x, y = x * cos - y * sin, y * cos + x * sin
-
-  -- Undo scale
-  x = x / scale.x
-  y = y / scale.y
-
   padding = padding or no_padding
 
   local half_width = size.x * 0.5

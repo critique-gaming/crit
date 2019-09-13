@@ -21,11 +21,17 @@ function DragAndDrop.new(options)
 
   self.drag_sources = options.drag_sources or {}
   self.drop_targets = options.drop_targets or {}
+
   self.can_drag = options.can_drag or always
   self.on_drag_start = options.on_drag_start or nop
   self.on_drag_move = options.on_drag_move or DragAndDrop__move_source
   self.on_drag_cancel = options.on_drag_cancel or nop
   self.on_drag_commit = options.on_drag_commit or nop
+  self.on_manual_drag_move = options.on_manual_drag_move or nop
+
+  self.manually_dragging = false
+  self.current_drag_source = nil
+  self.current_drop_target = nil
 
   return self
 end
@@ -92,7 +98,7 @@ function DragAndDrop__move_source(drag_source, dx, dy)
 end
 
 function DragAndDrop.__index:on_input(action_id, action)
-  if action_id == DragAndDrop.click_action_id then
+  if action_id == DragAndDrop.click_action_id and not self.manually_dragging then
     if action.pressed then
       local drag_source = DragAndDrop__get_picked_item(self.drag_sources, action)
       self.current_drag_source = drag_source
@@ -122,6 +128,59 @@ function DragAndDrop.__index:on_input(action_id, action)
       end
     end
   end
+end
+
+function DragAndDrop.__index:manual_drag_start(drag_source)
+  local current_drag_source = self.current_drag_source
+  if current_drag_source then
+    self.current_drag_source = nil
+    self.on_drag_cancel(current_drag_source)
+  end
+
+  self.manually_dragging = true
+  self.current_drag_source = drag_source
+  self.current_drop_target = nil
+  self.on_drag_start(drag_source)
+end
+
+function DragAndDrop.__index:manual_drag_move(drop_target)
+  if not self.manually_dragging then return end
+  local drag_source = self.current_drag_source
+  if not drag_source then return end
+
+  local can_drag = self.can_drag(drag_source, drop_target)
+  if can_drag then
+    self.current_drop_target = drop_target
+    self.on_manual_drag_move(drag_source, drop_target)
+  end
+  return can_drag
+end
+
+function DragAndDrop.__index:manual_drag_commit()
+  local drag_source = self.current_drag_source
+  local drop_target = self.current_drop_target
+  if not drag_source or not drop_target then return end
+
+  self.manually_dragging = false
+  self.current_drag_source = nil
+  self.current_drop_target = nil
+
+  self.on_drag_commit(drag_source, drop_target)
+end
+
+function DragAndDrop.__index:drag_cancel()
+  local drag_source = self.current_drag_source
+  if not drag_source then return end
+
+  self.manually_dragging = false
+  self.current_drag_source = nil
+  self.current_drop_target = nil
+
+  self.on_drag_cancel(drag_source)
+end
+
+function DragAndDrop.__index:is_dragging()
+  return not not self.current_drag_source
 end
 
 return DragAndDrop

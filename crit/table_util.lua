@@ -125,4 +125,15 @@ function M.shuffled(source)
   return result
 end
 
+function M.find(t, predicate)
+  local n = #t
+  for key = 1, n do
+    local value = t[key]
+    if predicate(value, key, t) then
+      return value, key
+    end
+  end
+  return nil
+end
+
 return M

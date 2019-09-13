@@ -298,6 +298,9 @@ function Button.__index:cancel_focus()
 end
 
 function Button.__index:switch_input_method()
+  if input_state.input_method ~= input_state.INPUT_METHOD_MOUSE then
+    self:cancel_touch()
+  end
   if self.focused and not Button_supports_focus(self) then
     self:cancel_focus()
   end
@@ -309,8 +312,9 @@ function Button.__index:cancel_touch()
   end
   self.mouse_down = false
   self.mouse_can_press = false
-  self.confirm_down_action = nil
-  Button_set_state(self, STATE_DEFAULT)
+  if not self.confirm_down_action then
+    Button_set_state(self, STATE_DEFAULT)
+  end
 end
 
 local function Button_mapped_action_id_to_navigation_action(mapped_action_id)
@@ -343,7 +347,7 @@ function Button__on_input(self, action_id, action)
   if action_id == nil and not confirm_down_action then
     if not is_mobile then
       if self.mouse_down then
-        return self.mouse_can_press
+        return not not self.action and self.mouse_can_press
       end
       local is_hovering = self:pick(action)
       Button_set_state(self, is_hovering and STATE_HOVER or STATE_DEFAULT)
@@ -353,7 +357,7 @@ function Button__on_input(self, action_id, action)
     if action.released then
       self.confirm_down_action = nil
       Button_set_state(self, STATE_DEFAULT, true)
-      if self.action then self:action() end
+      if self.action then self:action(false, action_id) end
     else
       Button_set_state(self, STATE_PRESSED)
     end
@@ -363,29 +367,46 @@ function Button__on_input(self, action_id, action)
     local mapped_action_id = input_map[action_id]
 
     if mapped_action_id == CLICK then
-      if confirm_down_action or not self.action then return end
+      if confirm_down_action then return end
 
       local is_hovering = self:pick(action)
       if action.released then
-        self.mouse_down = false
-        local new_state = (is_hovering and not is_mobile and self.keep_hover)
-          and STATE_HOVER
-          or STATE_DEFAULT
-        local did_click = self.mouse_can_press and is_hovering
-        self.mouse_can_press = false
-        Button_set_state(self, new_state, did_click)
-        if did_click then
-          self:action()
-          return true
+        if self.mouse_down then
+          self.mouse_down = false
+
+          local did_click = self.mouse_can_press and self.action and is_hovering
+          local new_state
+          if did_click then
+            new_state = (not is_mobile and self.keep_hover) and STATE_HOVER or STATE_DEFAULT
+          else
+            new_state = (not is_mobile and is_hovering) and STATE_HOVER or STATE_DEFAULT
+          end
+
+          self.mouse_can_press = false
+          Button_set_state(self, new_state, did_click)
+          if did_click then
+            self:action(true, action_id)
+            return true
+          end
         end
       else
         if action.pressed then
           self.mouse_can_press = is_hovering
           self.mouse_down = true
         end
-        Button_set_state(self, (is_hovering and self.mouse_can_press) and STATE_PRESSED or STATE_DEFAULT)
+        if self.mouse_down then
+          if self.mouse_can_press or self.hover_from_external_touch then
+            local new_state = is_hovering
+              and ((self.mouse_can_press and self.action)
+                and STATE_PRESSED
+                or STATE_HOVER
+              )
+              or STATE_DEFAULT
+            Button_set_state(self, new_state)
+          end
+        end
       end
-      return self.mouse_can_press
+      return not not self.action and self.mouse_can_press
 
     elseif self.focused and mapped_action_id then
       local nav_action, is_gamepad = Button_mapped_action_id_to_navigation_action(mapped_action_id)
@@ -410,10 +431,16 @@ function Button__on_input(self, action_id, action)
 end
 
 function Button.__index:set_enabled(enabled)
+  if enabled == (self.state ~= STATE_DISABLED) then
+    return
+  end
+
   if not enabled then
     self:cancel_focus()
   end
+
   Button_set_state(self, enabled and STATE_DEFAULT or STATE_DISABLED)
+
   if not enabled then
     self.mouse_can_press = false
     self.mouse_down = false

@@ -25,6 +25,7 @@ function FocusGiver.new(opts)
     allow_gamepad_empty_focus = allow_gamepad_empty_focus,
     allow_keyboard_empty_focus = allow_keyboard_empty_focus,
     on_pass_focus = opts.on_pass_focus,
+    enabled = true,
   }
   setmetatable(self, FocusGiver)
 
@@ -61,6 +62,10 @@ local function FocusGiver_pass_focus(self, input_method, nav_action)
 end
 
 function FocusGiver.__index:try_focus_first(nav_action)
+  if not self.enabled then
+    return false
+  end
+
   if self.focus_context.something_is_focused then
     return false
   end
@@ -92,7 +97,15 @@ function FocusGiver.__index:try_focus_first(nav_action)
   return FocusGiver_pass_focus(self, nil, nil)
 end
 
+function FocusGiver.__index:set_enabled(enabled)
+  self.enabled = enabled
+end
+
 FocusGiver.__index.on_input = analog_to_digital.wrap_on_input(function (self, action_id, action)
+  if not self.enabled then
+    return
+  end
+
   if self.focus_context.something_is_focused or not action_id then
     return
   end

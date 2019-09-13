@@ -68,41 +68,54 @@ local function warn(message, show_trace)
   end
 end
 
-local function make_namespace(namespace_id)
-  local lang_data
+local function make_namespace(namespace_id, custom_loader)
+  local lang_list
   local lang_count = 0
   local lang_fallback = 0
+  local lang_data
 
-  local function load()
-    lang_data = {}
+  custom_loader = custom_loader or loader
+
+  local function generate_language_list()
+    lang_list = {}
     lang_count = 0
 
-    local cache = {}
-
     for i, lang in ipairs(languages) do
-      local loaded_data = cache[lang] or loader(namespace_id, lang)
-      cache[lang] = loaded_data
-      if loaded_data then
+      local data = lang_data[lang]
+      if data then
         lang_count = lang_count + 1
-        lang_data[lang_count] = loaded_data
+        lang_list[lang_count] = data
       end
     end
 
     lang_fallback = lang_count
 
     for i, lang in ipairs(fallback_languages) do
-      local loaded_data = cache[lang] or loader(namespace_id, lang)
-      cache[lang] = loaded_data
-      if loaded_data then
+      local data = lang_data[lang]
+      if data then
         lang_count = lang_count + 1
-        lang_data[lang_count] = loaded_data
+        lang_list[lang_count] = data
       end
     end
   end
 
+  local function load()
+    lang_data = {}
+
+    for i, lang in ipairs(languages) do
+      lang_data[lang] = lang_data[lang] or custom_loader(namespace_id, lang)
+    end
+
+    for i, lang in ipairs(fallback_languages) do
+      lang_data[lang] = lang_data[lang] or custom_loader(namespace_id, lang)
+    end
+
+    generate_language_list()
+  end
+
   local function get_entry(key)
     for i = 1, lang_count do
-      local entry = lang_data[i][key]
+      local entry = lang_list[i][key]
       if entry then
         if warn_fallback and i > lang_fallback then
           warn("Match not found for intl key \"" .. key .. "\". Using fallback language")
@@ -174,12 +187,33 @@ local function make_namespace(namespace_id)
     return nil
   end
 
+  local function register(new_data)
+    local languages_changed = false
+
+    for lang, data in pairs(new_data) do
+      local old_data = lang_data[lang]
+      if old_data then
+        for k, v in pairs(data) do
+          old_data[k] = v
+        end
+      else
+        lang_data[lang] = data
+        languages_changed = true
+      end
+    end
+
+    if languages_changed then
+      generate_language_list()
+    end
+  end
+
   local public = {
     t = translate,
     translate = translate,
     translate_text_node = translate_text_node,
     translate_label = translate_label,
     select = select,
+    register = register,
   }
   setmetatable(public, {
     __call = function (t, key, values)
@@ -259,15 +293,21 @@ function M.configure(options)
   reload()
 end
 
-function M.namespace(namespace_id)
+function M.namespace(namespace_id, custom_loader)
   local namespace = namespaces[namespace_id]
   if not namespace then
-    local public, private = make_namespace(namespace_id)
+    local public, private = make_namespace(namespace_id, custom_loader)
     namespaces[namespace_id] = public
     namespace_privates[public] = private
     namespace = public
   end
   return namespace
+end
+
+function M.make_namespace(namespace_id, custom_loader)
+  local public, private = make_namespace(namespace_id, custom_loader)
+  namespace_privates[public] = private
+  return public
 end
 
 M.lua_loader = lua_loader

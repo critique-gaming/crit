@@ -4,6 +4,9 @@ local generated_id_count = 1
 local events = {}
 local subscribers = {}
 
+local message_queue = {}
+local message_queue_active = 0
+
 local function generate_id()
   local id_count = generated_id_count
   generated_id_count = id_count + 1
@@ -74,7 +77,7 @@ function M.unsubscribe(id)
   subscribers[id] = nil
 end
 
-function M.dispatch(message_id, message)
+local function dispatch(message_id, message)
   message_id = hash(message_id)
 
   local event = events[message_id]
@@ -82,12 +85,30 @@ function M.dispatch(message_id, message)
 
   message = message or {}
 
+  message_queue_active = message_queue_active + 1
+
   for i, sub in pairs(event.hooks) do
     sub.handler(message_id, message)
   end
 
   for i, sub in pairs(event.subs) do
     msg.post(sub.url, message_id, message)
+  end
+
+  if message_queue_active == 1 and next(message_queue) then
+    for _, msg_desc in ipairs(message_queue) do
+      dispatch(msg_desc[1], msg_desc[2])
+    end
+    message_queue = {}
+  end
+  message_queue_active = message_queue_active - 1
+end
+
+function M.dispatch(message_id, message)
+  if message_queue_active > 0 then
+    message_queue[#message_queue + 1] = { message_id, message }
+  else
+    dispatch(message_id, message)
   end
 end
 

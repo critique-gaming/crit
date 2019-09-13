@@ -35,7 +35,7 @@ function progression.resume(co, ...)
     immediate_cancel_handlers[co] = cancel_handler
   else
     immediate_cancel_handlers[co] = nil
-    print("ERROR: " .. cancel_handler)
+    print("ERROR: " .. debug.traceback(co, cancel_handler))
   end
 end
 
@@ -98,8 +98,8 @@ function progression.create_fork(f)
 
   -- When the child terminates, wake threads waiting on join() and the parent doesn't need to cancel it anymore
   progression.add_cleanup_handler(function ()
-    wake_waiting_threads(child)
     progression.remove_cleanup_handler(child, co)
+    wake_waiting_threads(child)
   end, nil, child)
 
   return child

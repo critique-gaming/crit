@@ -16,8 +16,6 @@ Picks a sprite.
   * The sprite must be positioned at the origin of its parent game object
   * The sprite must not be rotated inside of its parent game object
   * The sprite must not be scaled inside of its parent game object
-  * The sprite's parent game object can be rotated, but any other rotations up
-  the parent chain will be ignored.
 
 **Arguments:**
   * `sprite_url`: `url | string`. An URL identifying the sprite component.

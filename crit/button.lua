@@ -1,6 +1,7 @@
 local pick = require "crit.pick"
 local input_state = require "crit.input_state"
 local analog_to_digital = require "crit.analog_to_digital"
+local sys_config = require "crit.sys_config"
 
 local INPUT_METHOD_KEYBOARD = input_state.INPUT_METHOD_KEYBOARD
 local INPUT_METHOD_GAMEPAD = input_state.INPUT_METHOD_GAMEPAD
@@ -31,9 +32,6 @@ local h_gamepad_lstick_digital_down = hash("gamepad_lstick_digital_down")
 local h_gamepad_lstick_digital_left = hash("gamepad_lstick_digital_left")
 local h_gamepad_lstick_digital_right = hash("gamepad_lstick_digital_right")
 local h_gamepad_rpad_down = hash("gamepad_rpad_down")
-
-local sys_info = sys.get_sys_info()
-local is_mobile = sys_info.system_name == "iPhone OS" or sys_info.system_name == "Android"
 
 local default_action_to_position = function (action)
   return action.x, action.y
@@ -346,7 +344,7 @@ function Button__on_input(self, action_id, action)
   local confirm_down_action = self.confirm_down_action
 
   if action_id == nil and not confirm_down_action then
-    if not Button.is_mobile or action.virtual_cursor then
+    if not sys_config.is_mobile or action.virtual_cursor then
       if self.mouse_down then
         return not not self.action and self.mouse_can_press
       end
@@ -375,7 +373,7 @@ function Button__on_input(self, action_id, action)
         if self.mouse_down then
           self.mouse_down = false
 
-          local has_mouse = not Button.is_mobile or action.virtual_cursor
+          local has_mouse = not sys_config.is_mobile or action.virtual_cursor
 
           local did_click = self.mouse_can_press and self.action and is_hovering
           local new_state

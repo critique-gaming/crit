@@ -8,7 +8,7 @@ local DragAndDrop = {
   __index = {},
   default_gui_action_to_position = default_action_to_position,
   default_sprite_action_to_position = default_action_to_position,
-  click_action_id = hash("click"),
+  click_action_id = hash("touch"),
 }
 
 local nop = function () end

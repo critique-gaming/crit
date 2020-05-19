@@ -37,7 +37,7 @@ action IDs for its input, but the default input map is the following:
 
 |Input|Action ID|
 |-|-|
-|`MOUSE_BUTTON_1`|`click`|
+|`MOUSE_BUTTON_1`|`touch`|
 |`MOUSE_WHEEL_UP`|`wheel_up`|
 |`MOUSE_WHEEL_DOWN`|`wheel_down`|
 |`KEY_UP`|`key_up`|

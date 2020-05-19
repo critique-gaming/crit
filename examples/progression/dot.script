@@ -1,7 +1,7 @@
 local dispatcher = require "crit.dispatcher"
 local pick = require "crit.pick"
 
-local h_click = hash("click")
+local h_touch = hash("touch")
 local h_tint = hash("tint")
 local h_dot_click = hash("dot_click")
 local h_dot_reset = hash("dot_reset")
@@ -33,7 +33,7 @@ function on_message(self, message_id, message, sender)
 end
 
 function on_input(self, action_id, action)
-	if action_id == h_click and action.pressed and pick.pick_sprite(self.sprite, action.x, action.y) then
+	if action_id == h_touch and action.pressed and pick.pick_sprite(self.sprite, action.x, action.y) then
 		sprite.set_constant(self.sprite, h_tint, idle_color)
 		dispatcher.dispatch(h_dot_click, { dot_index = self.dot_index })
 	end

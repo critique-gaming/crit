@@ -3,7 +3,7 @@ local ScrollBar = {
   default_gui_action_to_position = function (action)
     return action.x, action.y
   end,
-  click_action_id = hash("click"),
+  click_action_id = hash("touch"),
 }
 
 local h_scrollbar = hash("scrollbar")

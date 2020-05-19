@@ -6,7 +6,7 @@ local filter_vel = filters.low_pass(1.0)
 
 local Scroll = {
   __index = {},
-  click_action_id = hash("click"),
+  click_action_id = hash("touch"),
   wheel_up_action_id = hash("wheel_up"),
   wheel_down_action_id = hash("wheel_down"),
 }

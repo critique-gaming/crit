@@ -13,7 +13,7 @@ local h_colorz = hash("color.z")
 local h_tintz = hash("tint.z")
 local h_colorw = hash("color.w")
 local h_tintw = hash("tint.w")
-local h_click = hash("click")
+local h_touch = hash("touch")
 local h_key_up = hash("key_up")
 local h_key_down = hash("key_down")
 local h_key_left = hash("key_left")
@@ -66,7 +66,7 @@ local GAMEPAD_RIGHT = GAMEPAD + NAVIGATE_RIGHT
 local GAMEPAD_CONFIRM = GAMEPAD + NAVIGATE_CONFIRM
 
 local input_map = {
-  [h_click] = CLICK,
+  [h_touch] = CLICK,
   [h_key_space] = KEYBOARD_CONFIRM,
   [h_key_enter] = KEYBOARD_CONFIRM,
   [h_key_up] = KEYBOARD_UP,

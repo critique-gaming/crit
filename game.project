@@ -17,3 +17,6 @@ custom_resources = examples/intl/data
 [library]
 include_dirs = crit
 
+[input]
+game_binding = /crit/all.input_bindingc
+

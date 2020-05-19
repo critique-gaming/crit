@@ -19,7 +19,7 @@ Layout.design_go_bottom = 0.0
 Layout.design_go_right = design_width
 Layout.design_go_top = design_height
 
--- There are 4 coordinate spaces:
+-- There are 5 coordinate spaces:
 -- 1) Window space: Raw screen coordinates inside the window. Origin is bottom left.
 --    Corresponds to action.screen_x/screen_y
 -- 2) Viewport space: The visible rectangle inside the window space (defined by
@@ -27,9 +27,12 @@ Layout.design_go_top = design_height
 --    Origin is bottom left.
 -- 3) Projection space: This is where game objects live. Mapped over the viewport.
 --    Its origin point is defined by projection_grav_x and projection_grav_y.
--- 4) Offset design space: Window space scaled to the design resolution (which
+-- 4) Design space: Window space scaled to the design resolution (which
+--    corresponds to action.x/action.y).
+-- 5) Offset design space: Window space scaled to the design resolution (which
 --    corresponds to action.x/action.y), then offset so that its origin matches
---    the viewport origin.
+--    the viewport origin, so that gui.pick_node() works correctly if you have
+--    an offset viewport.
 
 local window_width, window_height
 
@@ -46,6 +49,7 @@ local projection_top, projection_bottom
 
 local viewport_to_projection_scale_x, viewport_to_projection_scale_y
 local projection_to_viewport_scale_x, projection_to_viewport_scale_y
+local design_to_window_scale_x, design_to_window_scale_y
 
 function Layout.set_metrics(metrics)
   window_width = metrics.window_width
@@ -110,6 +114,8 @@ function Layout.set_metrics(metrics)
   viewport_to_projection_scale_y = projection_height / viewport_height
   projection_to_viewport_scale_x = viewport_width / projection_width
   projection_to_viewport_scale_y = viewport_height / projection_height
+  design_to_window_scale_x = window_width / design_width
+  design_to_window_scale_y = window_height / design_height
   Layout.viewport_to_projection_scale_x = viewport_to_projection_scale_x
   Layout.viewport_to_projection_scale_y = viewport_to_projection_scale_y
   Layout.projection_to_viewport_scale_x = projection_to_viewport_scale_x
@@ -167,6 +173,21 @@ local function projection_to_viewport(x, y)
   return new_x, new_y
 end
 Layout.projection_to_viewport = projection_to_viewport
+
+local function design_to_window(x, y)
+  return x * design_to_window_scale_x, y * design_to_window_scale_y
+end
+Layout.design_to_window = design_to_window
+
+local function design_to_viewport(x, y)
+  return window_to_viewport(design_to_window(x, y))
+end
+Layout.design_to_viewport = design_to_viewport
+
+local function design_to_projection(x, y)
+  return viewport_to_projection(design_to_viewport(x, y))
+end
+Layout.design_to_projection = design_to_projection
 
 local function window_to_projection(x, y)
   return viewport_to_projection(window_to_viewport(x, y))

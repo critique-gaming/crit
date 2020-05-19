@@ -90,6 +90,7 @@ local Button = {
   default_gui_action_to_position = default_action_to_position,
   default_sprite_action_to_position = default_action_to_position,
   input_map = input_map,
+  is_mobile = is_mobile,
 
   STATE_DEFAULT = STATE_DEFAULT,
   STATE_PRESSED = STATE_PRESSED,
@@ -345,7 +346,7 @@ function Button__on_input(self, action_id, action)
   local confirm_down_action = self.confirm_down_action
 
   if action_id == nil and not confirm_down_action then
-    if not is_mobile then
+    if not Button.is_mobile or action.virtual_cursor then
       if self.mouse_down then
         return not not self.action and self.mouse_can_press
       end
@@ -374,12 +375,14 @@ function Button__on_input(self, action_id, action)
         if self.mouse_down then
           self.mouse_down = false
 
+          local has_mouse = not Button.is_mobile or action.virtual_cursor
+
           local did_click = self.mouse_can_press and self.action and is_hovering
           local new_state
           if did_click then
-            new_state = (not is_mobile and self.keep_hover) and STATE_HOVER or STATE_DEFAULT
+            new_state = (has_mouse and self.keep_hover) and STATE_HOVER or STATE_DEFAULT
           else
-            new_state = (not is_mobile and is_hovering) and STATE_HOVER or STATE_DEFAULT
+            new_state = (has_mouse and is_hovering) and STATE_HOVER or STATE_DEFAULT
           end
 
           self.mouse_can_press = false
@@ -395,7 +398,8 @@ function Button__on_input(self, action_id, action)
           self.mouse_down = true
         end
         if self.mouse_down then
-          if self.mouse_can_press or self.hover_from_external_touch then
+          local mouse_can_press = self.mouse_can_press
+          if mouse_can_press or self.hover_from_external_touch then
             local new_state = is_hovering
               and ((self.mouse_can_press and self.action)
                 and STATE_PRESSED
@@ -403,6 +407,8 @@ function Button__on_input(self, action_id, action)
               )
               or STATE_DEFAULT
             Button_set_state(self, new_state)
+          elseif not mouse_can_press and self.state == STATE_HOVER then
+            Button_set_state(self, STATE_DEFAULT)
           end
         end
       end

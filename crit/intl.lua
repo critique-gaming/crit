@@ -136,18 +136,24 @@ local function make_namespace(namespace_id, custom_loader)
     return string.gsub(entry, "${([a-zA-Z_][a-zA-Z_0-9]*)}", values)
   end
 
-  local function translate_text_node(node)
+  local function translate_text_node(node, key, values)
     if uninitialized then uninitialized_error() end
     if type(node) == "string" then
       node = gui.get_node(node)
     end
-    local text = translate(gui.get_text(node))
+    if not key then
+      key = gui.get_text(node)
+    end
+    local text = translate(key, values)
     gui.set_text(node, text)
     return text
   end
 
   local function translate_label(url, key, values)
     if uninitialized then uninitialized_error() end
+    if not key then
+      key = label.get_text(url)
+    end
     local text = translate(key, values)
     label.set_text(url, text)
     return text

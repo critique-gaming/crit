@@ -2,6 +2,7 @@ local progression = {}
 
 local immediate_cancel_handlers = {}
 local cleanup_handlers = {}
+local late_cleanup_handlers = {}
 
 local function run_cleanup_handlers(co)
   local handlers = cleanup_handlers[co]
@@ -9,8 +10,15 @@ local function run_cleanup_handlers(co)
     for _, handler in pairs(handlers) do
       handler()
     end
+    cleanup_handlers[co] = nil
   end
-  cleanup_handlers[co] = nil
+  local late_handlers = late_cleanup_handlers[co]
+  if late_handlers then
+    for _, handler in pairs(late_handlers) do
+      handler()
+    end
+    late_cleanup_handlers[co] = nil
+  end
 end
 
 function progression.create_detached(f)
@@ -20,6 +28,7 @@ function progression.create_detached(f)
     run_cleanup_handlers(co)
   end)
   cleanup_handlers[co] = {}
+  late_cleanup_handlers[co] = {}
   return co
 end
 
@@ -52,10 +61,10 @@ function progression.cancel(co)
   dead_coroutines[co] = true
 end
 
-function progression.add_cleanup_handler(f, key, co)
+function progression.add_cleanup_handler(f, key, co, late)
   key = key or f
   co = co or coroutine.running()
-  local handlers = cleanup_handlers[co]
+  local handlers = (late and late_cleanup_handlers or cleanup_handlers)[co]
   if handlers then
     handlers[key] = f
   end
@@ -67,6 +76,10 @@ function progression.remove_cleanup_handler(key, co)
   local handlers = cleanup_handlers[co]
   if handlers then
     handlers[key] = nil
+  end
+  local late_handlers = late_cleanup_handlers[co]
+  if late_handlers then
+    late_handlers[key] = nil
   end
   return key
 end
@@ -94,13 +107,13 @@ function progression.create_fork(f)
   -- When the parent terminates, the child gets cancelled
   progression.add_cleanup_handler(function ()
     progression.cancel(child)
-  end, child)
+  end, child, nil, true)
 
   -- When the child terminates, wake threads waiting on join() and the parent doesn't need to cancel it anymore
   progression.add_cleanup_handler(function ()
     progression.remove_cleanup_handler(child, co)
     wake_waiting_threads(child)
-  end, nil, child)
+  end, nil, child, true)
 
   return child
 end

@@ -87,6 +87,7 @@ end
 
 local repeat_delay = tonumber(sys.get_config("input.repeat_delay", "0.5"))
 local repeat_interval = tonumber(sys.get_config("input.repeat_interval", "0.2"))
+local convert_action_recursed = false
 
 local function make_stick(stick_index, gamepad)
   local last_action_id
@@ -186,9 +187,12 @@ local function make_stick(stick_index, gamepad)
   end
 
   local function convert_action(instance, action_id, action, callback)
+    local recursed = convert_action_recursed
+    convert_action_recursed = true
+
     local consume = callback(instance, action_id, action)
 
-    if action_id == last_action_id then
+    if not recursed and action_id == last_action_id then
       if action_id_1 then
         consume = callback(instance, action_id_1, action_1) or consume
       end
@@ -197,6 +201,7 @@ local function make_stick(stick_index, gamepad)
       end
     end
 
+    convert_action_recursed = recursed
     return consume or false
   end
 

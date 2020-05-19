@@ -1,4 +1,5 @@
 local filters = require "crit.filters"
+local Inertia = require "crit.inertia"
 
 local filter = filters.low_pass(3.0)
 local filter_vel = filters.low_pass(1.0)
@@ -40,10 +41,8 @@ function Scroll.new(opts)
     interrupt_callback = nil,
     touch_dy = 0,
     touch_attempt = false,
-    touch_vel_dy = { 0, 0 },
-    touch_vel_dt = { 0, 0 },
-    touch_vel_frame = 1,
-    velocity = 0,
+    inertia = Inertia.new({ scalar = true }),
+    panned = 0,
     on_capture_touch = opts.on_capture_touch or f_true,
     action_to_dy = opts.action_to_dy or (
       opts.is_go and Scroll.default_go_action_to_dy or Scroll.default_gui_action_to_dy
@@ -56,17 +55,17 @@ end
 
 function Scroll.__index:set_content_height(content_height)
   self.content_height = content_height
-  self:set_offset(self.offset, self.velocity, true)
+  self:set_offset(self.offset, true, true)
 end
 
 function Scroll.__index:set_view_height(view_height)
   self.view_height = view_height
-  self:set_offset(self.offset, self.velocity, true)
+  self:set_offset(self.offset, true, true)
 end
 
 function Scroll.__index:set_padding_bottom(padding_bottom)
   self.padding_bottom = padding_bottom
-  self:set_offset(self.offset, self.velocity, true)
+  self:set_offset(self.offset, true, true)
 end
 
 function Scroll.__index:acquire_control(sender, interrupt_callback)
@@ -143,7 +142,7 @@ function Scroll.__index:animate_offset(offset, duration, easing)
   return true
 end
 
-function Scroll.__index:set_offset(offset, velocity, allow_overscroll)
+function Scroll.__index:set_offset(offset, keep_velocity, allow_overscroll)
   local content_height = self.content_height
   local view_height = self.view_height
   if content_height < view_height then
@@ -154,7 +153,11 @@ function Scroll.__index:set_offset(offset, velocity, allow_overscroll)
     offset = math.max(offset, 0)
   end
   self.offset = offset
-  self.velocity = velocity or 0
+
+  if not keep_velocity then
+    self.panned = 0
+    self.inertia.reset()
+  end
 
   local voffset = vmath.vector3(0, offset, 0)
   for i, node in ipairs(self.nodes) do
@@ -204,15 +207,13 @@ function Scroll.__index:update(dt)
     self:set_offset(offset)
   end
 
-  local touch_vel_frame = 3 - self.touch_vel_frame
-  self.touch_vel_dy[touch_vel_frame] = 0
-  self.touch_vel_dt[touch_vel_frame] = dt
-  self.touch_vel_frame = touch_vel_frame
+  local panned = self.panned
+  self.panned = 0
+  local velocity_delta = self.inertia.update(dt, self.sender and panned)
 
   if not self.sender then
     local max_offset = self.content_height + self.padding_bottom - self.view_height
     local offset = self.offset
-    local velocity = self.velocity
     local offset_changed = false
 
     if offset < 0 or offset > max_offset then
@@ -220,14 +221,13 @@ function Scroll.__index:update(dt)
       offset_changed = true
     end
 
-    if velocity ~= 0 then
-      offset = offset + velocity * dt
-      velocity = filter_vel(velocity, 0, dt)
+    if velocity_delta and velocity_delta ~= 0 then
+      offset = offset + velocity_delta
       offset_changed = true
     end
 
     if offset_changed then
-      self:set_offset(offset, velocity, true)
+      self:set_offset(offset, true, true)
     end
   end
 end
@@ -247,34 +247,27 @@ function Scroll.__index:on_input(action_id, action)
         self.touch_dy = 0
         self.touch_attempt = self.pick(action)
         if self.sender == nil then
-          self.velocity = 0
+          self.panned = 0
+          self.inertia.reset()
         end
       elseif self.touch_attempt and not action.released then
         local action_dy = self.action_to_dy(action)
         local touch_dy = self.touch_dy + action_dy
+        self.touch_dy = touch_dy
         if math.abs(touch_dy) > 10 then
           self.touch_attempt = false
           if self:acquire_control(h_touch) then
             self:on_capture_touch()
-            return true
           end
-        else
-          self.touch_dy = touch_dy
-          local touch_vel_frame = self.touch_vel_frame
-          self.touch_vel_dy[touch_vel_frame] = self.touch_vel_dy[touch_vel_frame] + touch_dy
         end
       end
     end
 
     if self.sender == h_touch then -- If we have control, scroll
-      local touch_vel_frame = self.touch_vel_frame
-      local touch_vel_dy = self.touch_vel_dy
-      local touch_vel_dt = self.touch_vel_dt
       local action_dy = self.action_to_dy(action)
-      touch_vel_dy[touch_vel_frame] = touch_vel_dy[touch_vel_frame] + action_dy
-
       local dy = self.touch_dy + action_dy
       self.touch_dy = 0
+      self.panned = self.panned + dy
 
       local max_offset = self.content_height + self.padding_bottom - self.view_height
       local offset = self.offset
@@ -282,8 +275,8 @@ function Scroll.__index:on_input(action_id, action)
         dy = dy * 0.5
       end
 
-      local velocity = (touch_vel_dy[1] + touch_vel_dy[2]) / (touch_vel_dt[1] + touch_vel_dt[2])
-      self:set_offset(offset + dy, velocity, true)
+
+      self:set_offset(offset + dy, true, true)
 
       if action.released then
         self:release_control()

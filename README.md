@@ -18,16 +18,26 @@ each designed to solve one specific problem. Use as much or as little as you nee
   * [Scroll views](./docs/scroll.md)
   * [Scroll bars](./docs/scrollbar.md)
   * [Sprite picking](./docs/pick.md)
+  * [Panning inertia](./docs/inertia.md)
 * Architecture
   * [The message dispatcher](./docs/dispatcher.md)
   * [Coroutine progression system](./docs/progression.md)
 * Input
   * [Keyboard/gamepad focus](./docs/focus.md)
   * [Analog to digital thumb stick conversion](./docs/analog_to_digital.md)
+  * [Mouse cursor hiding manager](./docs/cursor.md)
 * [Internationalisation](./docs/intl.md)
 * Utilities
   * [Table manipulation utilities](./docs/table_util.md)
   * [Low-pass and high-pass filters](./docs/filters.md)
+  * [The environment file](./docs/env.md)
+  * [System configuration constants]('./docs/sys_config.md)
+
+## Examples
+
+You can find usage examples in this repo. Alternatively, if you need a
+ready-to-go starter project based on Crit and [Monarch](https://github.com/britzl/monarch),
+check out [crit-boilerplate](https://github.com/dapetcu21/crit-boilerplate).
 
 ## Default input map
 

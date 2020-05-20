@@ -169,6 +169,27 @@ function progression.wait(seconds)
   end)
 end
 
+-- Callback helpers
+
+function progression.make_callback()
+  local co = coroutine.running()
+  local should_wait = false
+
+  local function callback(...)
+    local wait = should_wait
+    should_wait = nil
+    if wait then progression.resume(co, ...) end
+  end
+
+  local function wait_for_callback()
+    if should_wait == nil then return end
+    should_wait = true
+    return coroutine.yield(function () should_wait = should_wait and false end)
+  end
+
+  return callback, wait_for_callback
+end
+
 -- Loadable functions
 
 function progression.load_function(id)

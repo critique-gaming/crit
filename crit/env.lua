@@ -3,7 +3,7 @@ local sys_config = require "crit.sys_config"
 local debug = sys_config.debug
 
 local function load_from_resource()
-  local file = sys.load_resource(sys.get_config("crit.env_file", "/.env/env.lua"))
+  local file = sys.load_resource(sys.get_config("crit.env_file", "/_env/env.lua"))
   if not file then return {} end
   local chunk, error = loadstring(file or "")
   if not chunk then

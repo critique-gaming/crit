@@ -1,25 +1,25 @@
 # The `env.lua` file
 
 In order to help with development, you can set some variables locally to
-configure certain things by creating an `.env/env.lua` file in the project root directory.
+configure certain things by creating an `_env/env.lua` file in the project root directory.
 
-We recommend adding `.env/env.lua` to `.gitignore` so that you don't accidentally
+We recommend adding `_env/env.lua` to `.gitignore` so that you don't accidentally
 commit your local development flags.
 
 ## Setup
 
 ```bash
-# Create the .env dir
-mkdir .env
+# Create the _env dir
+mkdir _env
 
 # Add a dummy file so that git makes sure the dir always exists
-touch .env/.empty  
+touch _env/.empty  
 
 # You don't want to accidentally commit your local development flags
-echo "/.env/env.lua" >> .gitignore
+echo "/_env/env.lua" >> .gitignore
 ```
 
-Then add the `.env` dir to `project.custom_resources` in `game.project`.
+Then add the `_env` dir to `project.custom_resources` in `game.project`.
 
 ## Usage
 
@@ -44,8 +44,8 @@ print(env.some_config_var) -- 12
 
 There are multiple ways to pass an env table to the game:
 
-1. As explained above, create an `.env/env.lua` file in the project root.  
-  (Or if you prefer a different path for the `env.lua` file, set `crit.env_file` in `game.project` to your desired path. `crit.env_file` defaults to `.env/env.lua`).
+1. As explained above, create an `_env/env.lua` file in the project root.  
+  (Or if you prefer a different path for the `env.lua` file, set `crit.env_file` in `game.project` to your desired path. `crit.env_file` defaults to `_env/env.lua`).
 
 2. *Debug builds only:* Create an `env.lua` file in the game's save directory.
 (`sys.get_save_file(sys.get_config("project.title"), "env.lua")`)

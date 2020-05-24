@@ -68,17 +68,18 @@ end
 
 local debug = sys_config.debug
 local function config_enabled(config_key)
-  sys.get_config(config_key .. (debug and "_debug" or "_release"), debug)
+  local value = sys.get_config(config_key .. (debug and "_debug" or "_release"), debug and "1" or "0")
+  return value == "1" or value == "true"
 end
 
 local env
-env = config_enabled("crit.load_from_resource") and load_from_resource() or {}
+env = config_enabled("crit.env_from_resource") and load_from_resource() or {}
 
-if config_enabled("crit.load_from_save") then
+if config_enabled("crit.env_from_save") then
   load_from_save(env)
 end
 
-if config_enabled("crit.load_from_parameters") then
+if config_enabled("crit.env_from_parameters") then
   load_from_parameters(env)
 end
 

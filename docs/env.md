@@ -66,10 +66,10 @@ If more than one of the above methods are used, the env tables will be merged.
 |`game.project` setting|Default value|Description|
 |-|-|-|
 |`crit.env_file`|`_env/env.lua`|Resource path where to load `env.lua` from.|
-|`crit.load_from_resource_debug`|`true`|Wether to load env vars from `custom_resources` in debug builds.|
-|`crit.load_from_resource_release`|`false`|Wether to load env vars from `custom_resources` in release builds.|
-|`crit.load_from_save_debug`|`true`|Wether to load env vars from the save file directory in debug builds.|
-|`crit.load_from_save_release`|`false`|Wether to load env vars from the save file directory in release builds.|
-|`crit.load_from_parameters_debug`|`true`|Wether to load env vars from engine parameters (or, in case of HTML5, the hash part of the URL) in debug builds.|
-|`crit.load_from_parameters_release`|`false`|Wether to load env vars from engine parameters (or, in case of HTML5, the hash part of the URL) in release builds.|
+|`crit.env_from_resource_debug`|`true`|Wether to load env vars from `custom_resources` in debug builds.|
+|`crit.env_from_resource_release`|`false`|Wether to load env vars from `custom_resources` in release builds.|
+|`crit.env_from_save_debug`|`true`|Wether to load env vars from the save file directory in debug builds.|
+|`crit.env_from_save_release`|`false`|Wether to load env vars from the save file directory in release builds.|
+|`crit.env_from_parameters_debug`|`true`|Wether to load env vars from engine parameters (or, in case of HTML5, the hash part of the URL) in debug builds.|
+|`crit.env_from_parameters_release`|`false`|Wether to load env vars from engine parameters (or, in case of HTML5, the hash part of the URL) in release builds.|
 

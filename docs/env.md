@@ -57,7 +57,7 @@ There are multiple ways to pass an env table to the game:
 
     (b) On HTML5, pass it as the hash part of the URL, URL-encoded. (eg. `https://my-game.com/#return%20%7B%20foo%20%3D%2042%20%7D`)
 
-[DefOS]: (https://github.com/subsoap/defos)
+[DefOS]: https://github.com/subsoap/defos
 
 If more than one of the above methods are used, the env tables will be merged.
 

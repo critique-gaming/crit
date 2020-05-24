@@ -1,7 +1,5 @@
 local sys_config = require "crit.sys_config"
 
-local debug = sys_config.debug
-
 local function load_from_resource()
   local file = sys.load_resource(sys.get_config("crit.env_file", "/_env/env.lua"))
   if not file then return {} end
@@ -13,9 +11,7 @@ local function load_from_resource()
   return chunk() or {}
 end
 
-local function load_from_params(env)
-  if not debug then return end
-
+local function load_from_parameters(env)
   local luastring
   if html5 then
     luastring = html5.run([[
@@ -46,8 +42,6 @@ local function load_from_params(env)
 end
 
 local function load_from_save(env)
-  if not debug then return end
-
   local game_name = sys.get_config("project.title")
   local save_path = sys.get_save_file(game_name, "env.lua")
 
@@ -72,8 +66,20 @@ local function load_from_save(env)
   end
 end
 
-local env = load_from_resource()
-load_from_params(env)
-load_from_save(env)
+local debug = sys_config.debug
+local function config_enabled(config_key)
+  sys.get_config(config_key .. (debug and "_debug" or "_release"), debug)
+end
+
+local env
+env = config_enabled("crit.load_from_resource") and load_from_resource() or {}
+
+if config_enabled("crit.load_from_save") then
+  load_from_save(env)
+end
+
+if config_enabled("crit.load_from_parameters") then
+  load_from_parameters(env)
+end
 
 return env

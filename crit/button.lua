@@ -88,7 +88,6 @@ local Button = {
   default_gui_action_to_position = default_action_to_position,
   default_sprite_action_to_position = default_action_to_position,
   input_map = input_map,
-  is_mobile = is_mobile,
 
   STATE_DEFAULT = STATE_DEFAULT,
   STATE_PRESSED = STATE_PRESSED,

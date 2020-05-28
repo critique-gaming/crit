@@ -2,6 +2,7 @@ local progression = require "crit.progression"
 local dispatcher = require "crit.dispatcher"
 
 local h_progression_init = hash("progression_init")
+local h_progression_change_context = hash("progression_change_context")
 
 local subscriptions = {}
 
@@ -68,11 +69,17 @@ end
 
 function on_message(self, message_id, message, sender)
   if message_id == h_progression_init then
+    progression._progression_script_url = msg.url()
     progression.detach(function ()
       local main = progression.load_function("main")
       main()
     end)
     return
+
+  elseif message_id == h_progression_change_context then
+    progression.resume_in_context(message.id)
+    return
+
   end
 
   local sub = subscriptions[message_id]

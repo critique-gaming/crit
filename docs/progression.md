@@ -264,3 +264,42 @@ Creates an `init()` function with a call to `progression.register_function(f)`.
 
 **Arguments:**  
 * `f`: `function`. The function to register
+
+### `progression.make_callback()`
+
+Returns a `callback` that resumes the coroutine when called and a
+`wait_for_callback` function that waits for said callback to finish.
+
+This is useful to interface progression code with callback-based async APIs.
+
+**Return values:** 
+  * `callback: function`. Call this function to resume the thread.
+  * `wait_for_callback: function`. This function yields until `callback` is
+  called. Its return values are the arguments passed to `callback`.
+  
+### `progression.change_context(context_url)`
+
+Switch Defold's execution context to another script. The target script should call `progression.resume_in_context(message.id)` in response to the `progression_change_context` message sent to it.
+
+**Arguments:**
+  * `context_url: url`: The target script. Defaults to the URL 
+  to `progression.script`, if using it.
+
+### `progression.resume_in_context(id)`
+
+Call this function in response to `progression_change_context` from a script you
+want to switch execution context to.
+
+**Arguments:**
+  * `id: number`. Get this from `message.id`.
+
+### `progression.with_context(f, context_url)`
+
+Wrap a function such that it switches context to another script before executing the original function.
+
+**Arguments:**
+  * `f: function`: The function to wrap
+  * `context_url: url`: The target script. Defaults to the URL 
+  to `progression.script`, if using it.
+
+**Return value:** `function`: The wrapped function. It takes the same arguments and return values as the original function (`f`).

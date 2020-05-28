@@ -1,3 +1,5 @@
+local h_progression_change_context = hash("progression_change_context")
+
 local progression = {}
 
 local immediate_cancel_handlers = {}
@@ -188,6 +190,41 @@ function progression.make_callback()
   end
 
   return callback, wait_for_callback
+end
+
+local waiting_for_context = {}
+
+function progression.change_context(context_url)
+  context_url = context_url or progression._progression_script_url
+
+  local co = coroutine.running()
+  local id = #waiting_for_context + 1
+  waiting_for_context[id] = co
+
+  msg.post(context_url, h_progression_change_context, { id = id })
+
+  coroutine.yield(function ()
+    waiting_for_context[id] = nil
+  end)
+end
+
+function progression.resume_in_context(id)
+  local co = waiting_for_context[id]
+  if co then
+    waiting_for_context[id] = nil
+    progression.resume(co)
+  end
+end
+
+function progression.with_context(callback, context_url)
+  if not callback then
+    print(debug.traceback())
+  end
+  return function (...)
+    progression.change_context(context_url)
+
+    return callback(...)
+  end
 end
 
 -- Loadable functions

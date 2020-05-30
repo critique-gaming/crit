@@ -33,6 +33,25 @@ function M.clone(t)
   return new_t
 end
 
+local function deep_equal(a, b)
+  if a == b then return true end
+  if type(a) == "table" and type(b) == "table" then
+    for k, v in pairs(a) do
+      if not deep_equal(v, b[k]) then
+        return false
+      end
+    end
+    for k, v in pairs(b) do
+      if v ~= nil and a[k] == nil then
+        return false
+      end
+    end
+    return true
+  end
+  return false
+end
+M.deep_equal = deep_equal
+
 function M.assign(target, source)
   for k, v in pairs(source) do
     target[k] = v

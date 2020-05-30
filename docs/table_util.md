@@ -100,3 +100,14 @@ given table.
   * `t`: `table`. The integer-indexed table to filter.
   * `predicate`: `function (value, key, t)`. Return `false` or `nil` to remove
   the current element.
+
+### `table_util.deep_equal(a, b)`
+
+Returns `true` if the two values are equal. If they are tables, they are checked 
+for deep equality key by key.
+
+**Don't use this on tables with circular references.**
+
+**Arguments:**
+  * `a`: `any`. First item to compare.
+  * `b`: `any`. Second item to compare.

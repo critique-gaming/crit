@@ -40,8 +40,3 @@ on_input = analog_to_digital.wrap_on_input(function (self, action_id, action)
 		go.animate(indicator_url, "tint", go.PLAYBACK_ONCE_FORWARD, pressed_color, go.EASING_INCUBIC, 0.15)
 	end
 end)
-
-function on_reload(self)
-	-- Add reload-handling code here
-	-- Remove this function if not needed
-end

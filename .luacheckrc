@@ -33,6 +33,7 @@ globals = {
         "vmath",
         "window",
         "zlib",
+        "editor",
 
         "hash",
         "hash_to_hex",
@@ -42,6 +43,7 @@ globals = {
         "final",
         "on_message",
         "on_input",
+        "on_reload",
         "update",
 
         "defos",

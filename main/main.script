@@ -18,10 +18,9 @@ function init(self)
 	self.buttons = table_util.map(examples, function (example_name)
 		return Button.new(msg.url(example_name .. "#sprite"), {
 			is_sprite = true,
-			fade = {
+			on_state_change = Button.fade({
 				label = msg.url(example_name .. "#label"),
-			},
-			on_state_change = Button.fade,
+			}),
 			action = function ()
 				load_example(example_name)
 			end,

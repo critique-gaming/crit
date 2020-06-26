@@ -2,27 +2,26 @@ local Button = require "crit.button"
 
 function init(self)
 	self.simple_button = Button.new(gui.get_node("simple"), {
-		on_state_change = Button.fade,
+		on_state_change = Button.fade(),
 		action = function ()
 			print("Simple button pressed");
 		end,
 	})
 
 	self.darken_button = Button.new(gui.get_node("darken"), {
-		on_state_change = Button.darken,
-		darken = {
+		on_state_change = Button.darken({
 			nodes = {
 				-- Darken both the node and the label
 				gui.get_node("darken"), gui.get_node("darken_label")
 			},
-		},
+		}),
 		action = function ()
 			print("Darkening button pressed");
 		end,
 	})
 
 	self.shortcut_button = Button.new(gui.get_node("shortcut"), {
-		on_state_change = Button.fade,
+		on_state_change = Button.fade(),
 		shortcut_actions = { hash("key_space") },
 		action = function ()
 			print("Shortcut button pressed");
@@ -32,7 +31,7 @@ function init(self)
 	-- Disabled buttons stay in the STATE_DISABLED state and don't react to any input
 	self.disabled_button = Button.new(gui.get_node("disabled"), {
 		starts_enabled = false,
-		on_state_change = Button.fade,
+		on_state_change = Button.fade(),
 		action = function ()
 			print("Disabled button pressed. Should never happen");
 		end,
@@ -41,13 +40,13 @@ function init(self)
 	-- A button with no action won't go into the STATE_PRESSED state, but will
 	-- still switch between STATE_DEFAULT and STATE_HOVERED
 	self.no_action_button = Button.new(gui.get_node("no_action"), {
-		on_state_change = Button.fade,
+		on_state_change = Button.fade(),
 	})
 
 	-- A button with keep_hover = false, after it is un-pressed will go to
 	-- STATE_DEFAULT instead of STATE_HOVER
 	self.keep_hover_button = Button.new(gui.get_node("keep_hover"), {
-		on_state_change = Button.fade,
+		on_state_change = Button.fade(),
 		keep_hover = false,
 		action = function ()
 			print("Keep hover false button pressed");
@@ -55,12 +54,11 @@ function init(self)
 	})
 
 	self.custom_sprites_button = Button.new(gui.get_node("custom_sprites"), {
-		flipbook = {
+		on_state_change = Button.flipbook({
 			[Button.STATE_DEFAULT] = hash("buttons_default"),
 			[Button.STATE_HOVER] = hash("buttons_hover"),
 			[Button.STATE_PRESSED] = hash("buttons_pressed"),
-		},
-		on_state_change = Button.flipbook,
+		}),
 		action = function ()
 			print("Custom sprites button pressed");
 		end,

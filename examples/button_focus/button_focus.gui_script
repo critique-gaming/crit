@@ -13,7 +13,7 @@ function init(self)
 			keyboard_focus = true,
 			gamepad_focus = true,
 			on_focus_change = Button.focus_ring(gui.get_node("focus" .. index)),
-			on_state_change = Button.fade,
+			on_state_change = Button.fade(),
 			action = function ()
 				print("Button " .. index .. " pressed")
 			end,

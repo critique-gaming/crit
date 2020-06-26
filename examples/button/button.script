@@ -17,7 +17,7 @@ function init(self)
 end
 
 function on_input(self, action_id, action)
-	if self.button:on_input(action_id, action) then
+	if self.button.on_input(action_id, action) then
 		return true
 	end
 end

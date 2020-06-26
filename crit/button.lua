@@ -85,8 +85,6 @@ local input_map = {
 }
 
 local Button = {
-  __index = {},
-
   default_gui_action_to_position = default_action_to_position,
   default_sprite_action_to_position = default_action_to_position,
   input_map = input_map,
@@ -116,6 +114,11 @@ local Button = {
 }
 
 local Button_default_on_pass_focus
+local Button_on_input
+local Button_supports_focus
+local Button_focus
+local Button_unfocus
+local Button_set_state
 
 local function nop() end
 
@@ -212,7 +215,76 @@ function Button.new(node, self)
     self.on_focus_change = on_focus_change
   end
 
-  setmetatable(self, Button)
+  function self.focus()
+    if self.state == STATE_DISABLED then
+      return false
+    end
+
+    if self.focused then
+      return true
+    end
+
+    if not Button_supports_focus(self) then
+      return false
+    end
+
+    self.focus_context.something_is_focused = true
+    Button_focus(self)
+    return true
+  end
+
+  function self.cancel_focus()
+    if self.focused then
+      self.focus_context.something_is_focused = false
+      Button_unfocus(self)
+    end
+  end
+
+  function self.switch_input_method()
+    if input_state.input_method ~= input_state.INPUT_METHOD_MOUSE then
+      self.cancel_touch()
+    end
+    if self.focused and not Button_supports_focus(self) then
+      self.cancel_focus()
+    end
+  end
+
+  function self.cancel_touch()
+    if self.state == STATE_DISABLED then
+      return
+    end
+    self.mouse_down = false
+    self.mouse_can_press = false
+    if not self.confirm_down_action then
+      Button_set_state(self, STATE_DEFAULT)
+    end
+  end
+
+  function self.set_enabled(enabled)
+    if enabled == (self.state ~= STATE_DISABLED) then
+      return
+    end
+
+    if not enabled then
+      self.cancel_focus()
+    end
+
+    Button_set_state(self, enabled and STATE_DEFAULT or STATE_DISABLED)
+
+    if not enabled then
+      self.mouse_can_press = false
+      self.mouse_down = false
+      self.confirm_down_action = nil
+    end
+  end
+
+  function self.on_input(action_id, action)
+    if self.state == STATE_DISABLED then
+      return
+    end
+
+    return analog_to_digital.convert_action(self, action_id, action, Button_on_input)
+  end
 
   if not self.skip_initial_state_change then
     self:on_state_change(self.state)
@@ -221,7 +293,7 @@ function Button.new(node, self)
   return self
 end
 
-local function Button_set_state(self, state)
+function Button_set_state(self, state)
   local old_state = self.state
   if state ~= old_state then
     self:on_state_change(state, old_state)
@@ -229,20 +301,20 @@ local function Button_set_state(self, state)
   end
 end
 
-local function Button_focus(self)
+function Button_focus(self)
   self.focused = true
   self:on_focus_change(true)
 end
 
-local function Button_unfocus(self)
+function Button_unfocus(self)
   if self.confirm_down_action then
-    self:cancel_touch()
+    self.cancel_touch()
   end
   self.focused = false
   self:on_focus_change()
 end
 
-local function Button_supports_focus(self)
+function Button_supports_focus(self)
   local supports_focus = false
   local input_method = self.focus_context.focus_attempt_input_method or input_state.input_method
   if input_method == INPUT_METHOD_GAMEPAD then
@@ -282,51 +354,6 @@ local function Button_pass_focus(self, input_method, nav_action)
   return false
 end
 
-function Button.__index:focus()
-  if self.state == STATE_DISABLED then
-    return false
-  end
-
-  if self.focused then
-    return true
-  end
-
-  if not Button_supports_focus(self) then
-    return false
-  end
-
-  self.focus_context.something_is_focused = true
-  Button_focus(self)
-  return true
-end
-
-function Button.__index:cancel_focus()
-  if self.focused then
-    self.focus_context.something_is_focused = false
-    Button_unfocus(self)
-  end
-end
-
-function Button.__index:switch_input_method()
-  if input_state.input_method ~= input_state.INPUT_METHOD_MOUSE then
-    self:cancel_touch()
-  end
-  if self.focused and not Button_supports_focus(self) then
-    self:cancel_focus()
-  end
-end
-
-function Button.__index:cancel_touch()
-  if self.state == STATE_DISABLED then
-    return
-  end
-  self.mouse_down = false
-  self.mouse_can_press = false
-  if not self.confirm_down_action then
-    Button_set_state(self, STATE_DEFAULT)
-  end
-end
-
 local function Button_mapped_action_id_to_navigation_action(mapped_action_id)
   local is_gamepad = mapped_action_id >= GAMEPAD
   local nav_action = mapped_action_id - (is_gamepad and GAMEPAD or KEYBOARD)
@@ -342,16 +369,7 @@ function Button.action_id_to_navigation_action(action_id)
   return Button_mapped_action_id_to_navigation_action(mapped_action_id)
 end
 
-local Button__on_input
-function Button.__index:on_input(action_id, action)
-  if self.state == STATE_DISABLED then
-    return
-  end
-
-  return analog_to_digital.convert_action(self, action_id, action, Button__on_input)
-end
-
-function Button__on_input(self, action_id, action)
+function Button_on_input(self, action_id, action)
   local confirm_down_action = self.confirm_down_action
 
   if action_id == nil and not confirm_down_action then
@@ -446,24 +464,6 @@ function Button__on_input(self, action_id, action)
       Button_set_state(self, STATE_PRESSED)
       return true
     end
-  end
-end
-
-function Button.__index:set_enabled(enabled)
-  if enabled == (self.state ~= STATE_DISABLED) then
-    return
-  end
-
-  if not enabled then
-    self:cancel_focus()
-  end
-
-  Button_set_state(self, enabled and STATE_DEFAULT or STATE_DISABLED)
-
-  if not enabled then
-    self.mouse_can_press = false
-    self.mouse_down = false
-    self.confirm_down_action = nil
   end
 end
 

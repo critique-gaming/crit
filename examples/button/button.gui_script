@@ -31,12 +31,12 @@ function init(self)
 
 	-- Disabled buttons stay in the STATE_DISABLED state and don't react to any input
 	self.disabled_button = Button.new(gui.get_node("disabled"), {
+		starts_enabled = false,
 		on_state_change = Button.fade,
 		action = function ()
 			print("Disabled button pressed. Should never happen");
 		end,
 	})
-	self.disabled_button:set_enabled(false)
 
 	-- A button with no action won't go into the STATE_PRESSED state, but will
 	-- still switch between STATE_DEFAULT and STATE_HOVERED
@@ -99,31 +99,31 @@ function init(self)
 end
 
 function on_input(self, action_id, action)
-	if self.simple_button:on_input(action_id, action) then
+	if self.simple_button.on_input(action_id, action) then
 		return true
 	end
-	if self.darken_button:on_input(action_id, action) then
+	if self.darken_button.on_input(action_id, action) then
 		return true
 	end
-	if self.darken_button:on_input(action_id, action) then
+	if self.darken_button.on_input(action_id, action) then
 		return true
 	end
-	if self.shortcut_button:on_input(action_id, action) then
+	if self.shortcut_button.on_input(action_id, action) then
 		return true
 	end
-	if self.no_action_button:on_input(action_id, action) then
+	if self.no_action_button.on_input(action_id, action) then
 		return true
 	end
-	if self.disabled_button:on_input(action_id, action) then
+	if self.disabled_button.on_input(action_id, action) then
 		return true
 	end
-	if self.keep_hover_button:on_input(action_id, action) then
+	if self.keep_hover_button.on_input(action_id, action) then
 		return true
 	end
-	if self.custom_sprites_button:on_input(action_id, action) then
+	if self.custom_sprites_button.on_input(action_id, action) then
 		return true
 	end
-	if self.custom_pick_button:on_input(action_id, action) then
+	if self.custom_pick_button.on_input(action_id, action) then
 		return true
 	end
 end

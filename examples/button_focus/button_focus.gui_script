@@ -21,9 +21,9 @@ function init(self)
 			-- Return true to confirm the focus change
 			on_pass_focus = function (button, nav_action)
 				if nav_action == Button.NAVIGATE_UP then
-					return index > 1 and buttons[index - 1]:focus()
+					return index > 1 and buttons[index - 1].focus()
 				elseif nav_action == Button.NAVIGATE_DOWN then
-					return index < #buttons and buttons[index + 1]:focus()
+					return index < #buttons and buttons[index + 1].focus()
 				end
 			end,
 		})
@@ -37,9 +37,9 @@ function init(self)
 		-- Called to initiate the first focus. Return true to confirm focusing
 		on_pass_focus = function (focus_giver, nav_action)
 			if nav_action == Button.NAVIGATE_UP then
-				return buttons[#buttons]:focus()
+				return buttons[#buttons].focus()
 			else
-				return buttons[1]:focus()
+				return buttons[1].focus()
 			end
 		end
 	})
@@ -49,7 +49,7 @@ function init(self)
 	msg.post("input_method_switcher", "acquire_input_focus")
 
 	-- If empty focus is not allowed, initiate the first focus
-	self.focus_giver:try_focus_first()
+	self.focus_giver.try_focus_first()
 
 	self.sub_id = dispatcher.subscribe({ h_switch_input_method })
 end
@@ -59,7 +59,7 @@ function final(self)
 	-- If you forget, the default focus context will remain in the focused state forever.
 	-- (This is not necessary if the buttons belong to a temporary focus context)
 	for i, button in ipairs(self.button) do
-		button:cancel_focus()
+		button.cancel_focus()
 	end
 
 	dispatcher.unsubscribe(self.sub_id)
@@ -70,24 +70,24 @@ function on_message(self, message_id, message, sender)
 		for i, button in ipairs(self.button) do
 			-- This will un-focus the button if the button was not configured to
 			-- suport focus in the new input state
-			button:switch_input_method()
+			button.switch_input_method()
 		end
 
 		-- If empty focus is not allowed for the new input method, initiate the first focus.
 		-- Also, the input method switch possibly happened as a result of the player
 		-- pressing a navigation button, which would result in a focus change, so passing
 		-- the nav action through.
-		self.focus_giver:try_focus_first(message.nav_action)
+		self.focus_giver.try_focus_first(message.nav_action)
 	end
 end
 
 function on_input(self, action_id, action)
 	for i, button in ipairs(self.button) do
-		if button:on_input(action_id, action) then
+		if button.on_input(action_id, action) then
 			return true
 		end
 	end
-	if self.focus_giver:on_input(action_id, action) then
+	if self.focus_giver.on_input(action_id, action) then
 		return true
 	end
 end

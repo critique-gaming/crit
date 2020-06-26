@@ -33,7 +33,7 @@ end
 
 function on_input(self, action_id, action)
 	for i, button in ipairs(self.buttons) do
-		if button:on_input(action_id, action) then
+		if button.on_input(action_id, action) then
 			return true
 		end
 	end

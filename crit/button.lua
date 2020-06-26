@@ -600,21 +600,13 @@ local function fade_node(node, value, duration)
   gui.animate(node, h_colorw, value, gui.EASING_LINEAR, duration)
 end
 
-local function Button_fade(self, state, old_state, options)
-  local alpha = options and options.alpha
-  local value = alpha and alpha[state] or Button.default_fade_alpha[state]
-  local duration = resolve_duration(options and options.duration, state, old_state)
-
-  run_animations(self, options, value, duration, fade_sprite, fade_label, fade_node)
-end
-
-function Button.fade(self, state, old_state)
-  Button_fade(self, state, old_state, self.fade)
-end
-
-function Button.make_fade(options)
+function Button.fade(options)
   return function (self, state, old_state)
-    Button_fade(self, state, old_state, options)
+    local alpha = options and options.alpha
+    local value = alpha and alpha[state] or Button.default_fade_alpha[state]
+    local duration = resolve_duration(options and options.duration, state, old_state)
+
+    run_animations(self, options, value, duration, fade_sprite, fade_label, fade_node)
   end
 end
 
@@ -652,21 +644,13 @@ local function darken_node(node, value, duration)
   gui.animate(node, h_colorz, value, gui.EASING_LINEAR, duration)
 end
 
-local function Button_darken(self, state, old_state, options)
-  local brightness = options and options.brightness
-  local value = brightness and brightness[state] or Button.default_darken_brightness[state]
-  local duration = resolve_duration(options and options.duration, state, old_state)
-
-  run_animations(self, options, value, duration, darken_sprite, darken_label, darken_node)
-end
-
-function Button.darken(self, state, old_state)
-  Button_darken(self, state, old_state, self.darken)
-end
-
-function Button.make_darken(options)
+function Button.darken(options)
   return function (self, state, old_state)
-    Button_darken(self, state, old_state, options)
+    local brightness = options and options.brightness
+    local value = brightness and brightness[state] or Button.default_darken_brightness[state]
+    local duration = resolve_duration(options and options.duration, state, old_state)
+
+    run_animations(self, options, value, duration, darken_sprite, darken_label, darken_node)
   end
 end
 
@@ -692,32 +676,25 @@ local function tint_node(node, value, duration)
   gui.animate(node, h_color, value, gui.EASING_LINEAR, duration)
 end
 
-local function Button_tint(self, state, old_state, options)
-  local tint_color = options and options.color
-  local value = tint_color and tint_color[state] or Button.default_tint_color[state]
-  local duration = resolve_duration(options and options.duration, state, old_state)
-
-  run_animations(self, options, value, duration, tint_sprite, tint_label, tint_node)
-end
-
-function Button.tint(self, state, old_state)
-  return Button_tint(self, state, old_state, self.tint)
-end
-
-function Button.make_tint(options)
+function Button.tint(options)
   return function (self, state, old_state)
-    Button_tint(self, state, old_state, options)
+    local tint_color = options and options.color
+    local value = tint_color and tint_color[state] or Button.default_tint_color[state]
+    local duration = resolve_duration(options and options.duration, state, old_state)
+
+    run_animations(self, options, value, duration, tint_sprite, tint_label, tint_node)
   end
 end
 
-function Button.flipbook(self, state)
-  local options = self.flipbook
-  local animation = options and (options[state] or options[STATE_DEFAULT])
-  if animation then
-    if self.is_sprite then
-      sprite.play_flipbook(self.node, animation)
-    else
-      gui.play_flipbook(self.node, animation)
+function Button.flipbook(options)
+  return function (self, state)
+    local animation = options and (options[state] or options[STATE_DEFAULT])
+    if animation then
+      if self.is_sprite then
+        sprite.play_flipbook(self.node, animation)
+      else
+        gui.play_flipbook(self.node, animation)
+      end
     end
   end
 end

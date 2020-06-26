@@ -1,0 +1,69 @@
+local M = {}
+
+local saved_names = nil
+
+function M.get_commands()
+  return {
+    {
+      label = "Make layers with these names",
+      locations = { "Outline" },
+      query = {
+        selection = { type = "outline", cardinality = "many" },
+      },
+
+      active = function (opts)
+        for _, node in ipairs(opts.selection) do
+          if editor.can_get(node, "name") then
+            return true
+          end
+        end
+        return false
+      end,
+
+      run = function (opts)
+        -- Collect all the font names
+        local names = {}
+        local a_selection = nil
+        for _, node in ipairs(opts.selection) do
+          if editor.can_get(node, "name") then
+            names[#names + 1] = editor.get(node, "name")
+            a_selection = node
+          end
+        end
+
+        -- If nothing valid is selected, fail early
+        if not next(names) then return end
+
+        saved_names = names
+        print("INFO:EXT: Layer names saved. Now right click a GUI file and select \"Make layers with saved names\".")
+        print("INFO:EXT: MAKE SURE YOU DON'T HAVE UNSAVED CHANGES TO THE FILE FIRST!")
+      end,
+    },
+    {
+      label = "Make layers with saved names",
+      locations = { "Edit", "View", "Assets", "Outline" },
+      query = {
+        selection = { type = "resource", cardinality = "one" },
+      },
+
+      active = function (opts)
+        if not saved_names then return end
+        if not editor.can_get(opts.selection, "path") then
+          return false
+        end
+        return editor.get(opts.selection, "path"):match("%.gui$") ~= nil
+      end,
+
+      run = function(opts)
+        local resource_path = editor.get(opts.selection, "path"):gsub("^/", "")
+        local f = io.open(resource_path, "a")
+        for _, name in ipairs(saved_names) do
+          f:write("layers {\n  name: \"" .. name .. "\"\n}\n")
+        end
+        f:close()
+      end,
+    },
+  }
+end
+
+return M

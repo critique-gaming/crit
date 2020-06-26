@@ -46,6 +46,10 @@ as a `transformer` in `table_util.deep_clone()` to filter out all functions.
 
 Copies all key-value pairs from the `source` table to the `target` table.
 
+### `table_util.assign_all(target, source1, source2, source3, ...)`
+
+Copies all key-value pairs from the `sourceN` tables to the `target` table.
+
 ### `table_util.map(t, mapper)`
 
 Returns a copy of `t`, where all keys are passed through a `mapper` function.
@@ -111,3 +115,8 @@ for deep equality key by key.
 **Arguments:**
   * `a`: `any`. First item to compare.
   * `b`: `any`. Second item to compare.
+
+### `table_util.dump(t)`
+
+Returns a best-effort string representation of table `t`. Use for debug
+purposes only.

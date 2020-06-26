@@ -52,10 +52,22 @@ local function deep_equal(a, b)
 end
 M.deep_equal = deep_equal
 
-function M.assign(target, source)
-  for k, v in pairs(source) do
-    target[k] = v
+local function assign(target, source)
+  if source then
+    for k, v in pairs(source) do
+      target[k] = v
+    end
   end
+  return target
+end
+M.assign = assign
+
+function M.assign_all(target, ...)
+  local n = select("#", ...)
+  for i = 1, n do
+    assign(target, select(i, ...))
+  end
+  return target
 end
 
 function M.map(t, mapper)
@@ -124,9 +136,12 @@ end
 local random = math.random
 
 -- Fisher-Yates shuffle in-place
-function M.shuffle(t)
-  for i = #t, 1, -1 do
-    local j = random(i)
+function M.shuffle(t, start_index, end_index)
+  start_index = start_index or 1
+  end_index = end_index or #t
+  local start_index_0 = start_index - 1
+  for i = end_index, start_index, -1 do
+    local j = random(i - start_index_0) + start_index_0
     t[i], t[j] = t[j], t[i]
   end
   return t
@@ -154,5 +169,20 @@ function M.find(t, predicate)
   end
   return nil
 end
+
+local function dump(x, identation)
+  identation = identation or ""
+  if type(x) == "table" then
+    local ident = identation .. "  "
+    local s = identation .. "{"
+    for k, v in pairs(x) do
+      s = s .. "\n" .. ident .. tostring(k) .. " = " .. dump(v, ident)
+    end
+    s = s .. "\n" .. identation .. "}"
+    return s
+  end
+  return tostring(x)
+end
+M.dump = dump
 
 return M

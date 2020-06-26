@@ -262,7 +262,7 @@ end
 local huge = math.huge
 function Tooltip.merge_bounding_boxes(boxes)
   local min_x, max_x, min_y, max_y = huge, -huge, huge, -huge
-  for i, box in ipairs(boxes) do
+  for _, box in ipairs(boxes) do
     local center = box.center
     local size = box.size
     local half_w, half_h = size.x * 0.5, size.y * 0.5
@@ -298,7 +298,7 @@ function Tooltip.button_update_position(button, options)
   })
 end
 
-function Tooltip.button_on_state_change(options, original_on_state_change)
+function Tooltip.button_on_state_change(options)
   local id = options.id or get_unique_id()
   local payload = options.payload
   local get_bounding_box = options.get_bounding_box or Tooltip.get_button_bounding_box
@@ -307,15 +307,7 @@ function Tooltip.button_on_state_change(options, original_on_state_change)
 
   local is_payload_function = type(payload) == 'function'
 
-  if original_on_state_change == nil then
-    original_on_state_change = Button.default_on_state_change
-  end
-
-  return function (button, state, old_state, did_click)
-    if original_on_state_change then
-      original_on_state_change(button, state, old_state, did_click)
-    end
-
+  return function (button, state, old_state)
     local was_hover = old_state == STATE_HOVER or old_state == STATE_PRESSED
     local is_hover = state == STATE_HOVER or state == STATE_PRESSED
     if was_hover == is_hover then return end

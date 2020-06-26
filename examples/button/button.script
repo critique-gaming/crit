@@ -4,10 +4,13 @@ function init(self)
 	-- Buttons can also be used in game objects. Just pass is_sprite = true
 	self.button = Button.new(msg.url("button#sprite"), {
 		is_sprite = true,
-		faded_labels = { msg.url("button#label") },
 		action = function ()
 			print("A game object button got clicked")
 		end,
+		fade = {
+			label = msg.url("button#label"),
+		},
+		on_state_change = Button.fade,
 	})
 
 	msg.post(".", "acquire_input_focus")

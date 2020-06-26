@@ -12,7 +12,8 @@ function init(self)
 		buttons[#buttons + 1] = Button.new(gui.get_node("button" .. index), {
 			keyboard_focus = true,
 			gamepad_focus = true,
-			focus_node = gui.get_node("focus" .. index), -- Used by the default on_focus_change
+			on_focus_change = Button.focus_ring(gui.get_node("focus" .. index)),
+			on_state_change = Button.fade,
 			action = function ()
 				print("Button " .. index .. " pressed")
 			end,

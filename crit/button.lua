@@ -117,6 +117,20 @@ local Button = {
 
 local Button_default_on_pass_focus
 
+local function nop() end
+
+local function resolve_callback(f)
+  if not f then return nop end
+  if type(f) == "table" then
+    return function (...)
+      for i = 1, #f do
+        f[i](...)
+      end
+    end
+  end
+  return f
+end
+
 function Button.new(node, self)
   self = self or {}
 
@@ -130,6 +144,7 @@ function Button.new(node, self)
   self.mouse_down = false
   self.confirm_down_action = nil
   self.focused = false
+  self.triggered_action = false
 
   self.keyboard_focus = self.keyboard_focus or false
   self.gamepad_focus = self.gamepad_focus or false
@@ -161,25 +176,11 @@ function Button.new(node, self)
   end
   self._shortcut_actions = shortcut_actions
 
-  -- TODO: Find a way to get this out of here?
-  local focus_node = self.focus_node
-  if focus_node then
-    if is_sprite then
-      go.set(focus_node, h_tintw, 0.0)
-      msg.post(focus_node, h_disable)
-    else
-      local color = gui.get_color(focus_node)
-      color.w = 0.0
-      gui.set_color(focus_node, color)
-      gui.set_enabled(focus_node, false)
-    end
-  end
-
-  local on_state_change = self.on_state_change or Button.default_on_state_change
-  local on_focus_change = self.on_focus_change or Button.default_on_focus_change
+  local on_state_change = resolve_callback(self.on_state_change)
+  local on_focus_change = resolve_callback(self.on_focus_change)
 
   if self.focus_simulates_hover then
-    self.on_state_change = function (button, button_state, old_state, did_click)
+    self.on_state_change = function (button, button_state, old_state)
       if button.focused then
         if button_state == STATE_DEFAULT then
           button_state = STATE_HOVER
@@ -191,7 +192,7 @@ function Button.new(node, self)
           return
         end
       end
-      return on_state_change(button, button_state, old_state, did_click)
+      return on_state_change(button, button_state, old_state)
     end
 
     self.on_focus_change = function (button, focused)
@@ -216,10 +217,10 @@ function Button.new(node, self)
   return self
 end
 
-local function Button_set_state(self, state, did_click)
+local function Button_set_state(self, state)
   local old_state = self.state
   if state ~= old_state then
-    self:on_state_change(state, old_state, did_click)
+    self:on_state_change(state, old_state)
     self.state = state
   end
 end
@@ -361,7 +362,9 @@ function Button__on_input(self, action_id, action)
   elseif action_id == confirm_down_action then
     if action.released then
       self.confirm_down_action = nil
-      Button_set_state(self, STATE_DEFAULT, true)
+      self.triggered_action = true
+      Button_set_state(self, STATE_DEFAULT)
+      self.triggered_action = false
       if self.action then self:action(false, action_id) end
     else
       Button_set_state(self, STATE_PRESSED)
@@ -381,17 +384,19 @@ function Button__on_input(self, action_id, action)
 
           local has_mouse = not sys_config.is_mobile or action.virtual_cursor
 
-          local did_click = self.mouse_can_press and self.action and is_hovering
+          local triggered_action = self.mouse_can_press and self.action and is_hovering
           local new_state
-          if did_click then
+          if triggered_action then
             new_state = (has_mouse and self.keep_hover) and STATE_HOVER or STATE_DEFAULT
           else
             new_state = (has_mouse and is_hovering) and STATE_HOVER or STATE_DEFAULT
           end
 
           self.mouse_can_press = false
-          Button_set_state(self, new_state, did_click)
-          if did_click then
+          self.triggered_action = triggered_action
+          Button_set_state(self, new_state)
+          self.triggered_action = false
+          if triggered_action then
             self:action(true, action_id)
             return true
           end
@@ -479,35 +484,44 @@ function Button_default_on_pass_focus()
   return false
 end
 
-function Button.focus_ring_on_focus_change(self, focused)
-  local node = self.focus_node
-  if not node then return end
-
-  local focus_duration = self.focus_duration or 0.2
-
-  if self.is_sprite then
-    if focused then
-      msg.post(node, h_enable)
-      go.cancel_animations(node, h_tintw)
-      go.animate(node, h_tintw, go.PLAYBACK_ONCE_FORWARD, 1.0, go.EASING_LINEAR, focus_duration)
-    else
-      go.cancel_animations(node, h_tintw)
-      go.animate(node, h_tintw, go.PLAYBACK_ONCE_FORWARD, 0.0, go.EASING_LINEAR, focus_duration, 0.0, function ()
-        go.set(node, h_tintw, 0.0)
-        msg.post(node, h_disable)
-      end)
-    end
-
+function Button.focus_ring(node, is_sprite)
+  if is_sprite then
+    go.set(node, h_tintw, 0.0)
+    msg.post(node, h_disable)
   else
-    if focused then
-      gui.set_enabled(node, true)
-      gui.cancel_animation(node, h_colorw)
-      gui.animate(node, h_colorw, 1.0, go.EASING_LINEAR, focus_duration)
+    local color = gui.get_color(node)
+    color.w = 0.0
+    gui.set_color(node, color)
+    gui.set_enabled(node, false)
+  end
+
+  return function (self, focused)
+    local focus_duration = self.focus_duration or 0.2
+
+    if self.is_sprite then
+      if focused then
+        msg.post(node, h_enable)
+        go.cancel_animations(node, h_tintw)
+        go.animate(node, h_tintw, go.PLAYBACK_ONCE_FORWARD, 1.0, go.EASING_LINEAR, focus_duration)
+      else
+        go.cancel_animations(node, h_tintw)
+        go.animate(node, h_tintw, go.PLAYBACK_ONCE_FORWARD, 0.0, go.EASING_LINEAR, focus_duration, 0.0, function ()
+          go.set(node, h_tintw, 0.0)
+          msg.post(node, h_disable)
+        end)
+      end
+
     else
-      gui.cancel_animation(node, h_colorw)
-      gui.animate(node, h_colorw, 0.0, go.EASING_LINEAR, focus_duration, 0.0, function ()
-        gui.set_enabled(node, false)
-      end)
+      if focused then
+        gui.set_enabled(node, true)
+        gui.cancel_animation(node, h_colorw)
+        gui.animate(node, h_colorw, 1.0, go.EASING_LINEAR, focus_duration)
+      else
+        gui.cancel_animation(node, h_colorw)
+        gui.animate(node, h_colorw, 0.0, go.EASING_LINEAR, focus_duration, 0.0, function ()
+          gui.set_enabled(node, false)
+        end)
+      end
     end
   end
 end
@@ -553,7 +567,7 @@ local function run_animations(button, options, value, duration, animate_sprite, 
       animate_sprite(sprites[i], value, duration)
     end
   else
-    local sprite = options and options.sprite or (button.is_sprite and button.sprite)
+    local sprite = options and options.sprite or (button.is_sprite and button.node)
     if sprite then
       animate_sprite(sprite, value, duration)
     end
@@ -582,13 +596,22 @@ local function fade_node(node, value, duration)
   gui.animate(node, h_colorw, value, gui.EASING_LINEAR, duration)
 end
 
-function Button.fade_on_state_change(self, state, old_state)
-  local options = self.fade
+local function Button_fade(self, state, old_state, options)
   local alpha = options and options.alpha
   local value = alpha and alpha[state] or Button.default_fade_alpha[state]
   local duration = resolve_duration(options and options.duration, state, old_state)
 
   run_animations(self, options, value, duration, fade_sprite, fade_label, fade_node)
+end
+
+function Button.fade(self, state, old_state)
+  Button_fade(self, state, old_state, self.fade)
+end
+
+function Button.make_fade(options)
+  return function (self, state, old_state)
+    Button_fade(self, state, old_state, options)
+  end
 end
 
 Button.default_darken_brightness = {
@@ -625,13 +648,22 @@ local function darken_node(node, value, duration)
   gui.animate(node, h_colorz, value, gui.EASING_LINEAR, duration)
 end
 
-function Button.darken_on_state_change(self, state, old_state)
-  local options = self.darken
+local function Button_darken(self, state, old_state, options)
   local brightness = options and options.brightness
   local value = brightness and brightness[state] or Button.default_darken_brightness[state]
   local duration = resolve_duration(options and options.duration, state, old_state)
 
   run_animations(self, options, value, duration, darken_sprite, darken_label, darken_node)
+end
+
+function Button.darken(self, state, old_state)
+  Button_darken(self, state, old_state, self.darken)
+end
+
+function Button.make_darken(options)
+  return function (self, state, old_state)
+    Button_darken(self, state, old_state, options)
+  end
 end
 
 Button.default_tint_color = {
@@ -656,8 +688,7 @@ local function tint_node(node, value, duration)
   gui.animate(node, h_color, value, gui.EASING_LINEAR, duration)
 end
 
-function Button.tint_on_state_change(self, state, old_state)
-  local options = self.tint
+local function Button_tint(self, state, old_state, options)
   local tint_color = options and options.color
   local value = tint_color and tint_color[state] or Button.default_tint_color[state]
   local duration = resolve_duration(options and options.duration, state, old_state)
@@ -665,21 +696,17 @@ function Button.tint_on_state_change(self, state, old_state)
   run_animations(self, options, value, duration, tint_sprite, tint_label, tint_node)
 end
 
-function Button.make_tint(options, passthrough)
-  return function (self, state, old_state, did_click)
-    local tint_color = options and options.color
-    local value = tint_color and tint_color[state] or Button.default_tint_color[state]
-    local duration = resolve_duration(options and options.duration, state, old_state)
+function Button.tint(self, state, old_state)
+  return Button_tint(self, state, old_state, self.tint)
+end
 
-    run_animations(self, options, value, duration, tint_sprite, tint_label, tint_node)
-
-    if passthrough then
-      return passthrough(self, state, old_state, did_click)
-    end
+function Button.make_tint(options)
+  return function (self, state, old_state)
+    Button_tint(self, state, old_state, options)
   end
 end
 
-function Button.flipbook_on_state_change(self, state)
+function Button.flipbook(self, state)
   local options = self.flipbook
   local animation = options and (options[state] or options[STATE_DEFAULT])
   if animation then
@@ -690,8 +717,5 @@ function Button.flipbook_on_state_change(self, state)
     end
   end
 end
-
-Button.default_on_state_change = Button.fade_on_state_change
-Button.default_on_focus_change = Button.focus_ring_on_focus_change
 
 return Button

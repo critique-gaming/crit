@@ -19,22 +19,30 @@ M.design_go_bottom = 0.0
 M.design_go_right = design_width
 M.design_go_top = design_height
 
--- There are 5 coordinate spaces:
--- 1) Window space: Raw screen coordinates inside the window. Origin is bottom left.
---    Corresponds to action.screen_x/screen_y
--- 2) Viewport space: The visible rectangle inside the window space (defined by
---    viewport_width, viewport_height, viewport_origin_x, viewport_origin_y).
---    Origin is bottom left.
--- 3) Projection space: This is where game objects live. Mapped over the viewport.
---    Its origin point is defined by projection_grav_x and projection_grav_y.
--- 4) Design space: Window space scaled to the design resolution (which
---    corresponds to action.x/action.y).
--- 5) Offset design space: Window space scaled to the design resolution (which
---    corresponds to action.x/action.y), then offset so that its origin matches
---    the viewport origin, so that gui.pick_node() works correctly if you have
---    an offset viewport.
+--[[
+Coordinate spaces:
+* Window space: Raw screen coordinates inside the window. Origin is bottom left.
+  Corresponds to action.screen_x/screen_y
+
+* Viewport space: The visible rectangle inside the window space (defined by
+  viewport_width, viewport_height, viewport_origin_x, viewport_origin_y).
+  Origin is bottom left.
+
+* Camera space: This is where game objects live, as seen from the
+  position and direction of the camera. Mapped over the viewport.
+  Its bounds are defined by projection_left/right/top/bottom or a projection matrix.
+
+* Design space: Window space scaled to the design resolution (which
+  corresponds to action.x/action.y).
+
+* Offset design space: Window space scaled to the design resolution (which
+  corresponds to action.x/action.y), then offset so that its origin matches
+  the viewport origin, so that gui.pick_node() works correctly if you have
+  an offset viewport.
+]]
 
 local window_width, window_height
+local camera_width, camera_height
 
 local viewport_width, viewport_height
 local viewport_origin_x, viewport_origin_y
@@ -42,13 +50,11 @@ local viewport_origin_x, viewport_origin_y
 local design_offset_x, design_offset_y
 
 local projection, gui_projection
-
-local projection_width, projection_height
 local projection_left, projection_right
 local projection_top, projection_bottom
 
-local viewport_to_projection_scale_x, viewport_to_projection_scale_y
-local projection_to_viewport_scale_x, projection_to_viewport_scale_y
+local viewport_to_camera_scale_x, viewport_to_camera_scale_y
+local camera_to_viewport_scale_x, camera_to_viewport_scale_y
 local design_to_window_scale_x, design_to_window_scale_y
 
 function M.set_metrics(metrics)
@@ -101,25 +107,25 @@ function M.set_metrics(metrics)
     end
   end
 
-  projection_width = projection_right - projection_left
-  projection_height = projection_top - projection_bottom
-  M.projection_width = projection_width
-  M.projection_height = projection_height
+  camera_width = projection_right - projection_left
+  camera_height = projection_top - projection_bottom
+  M.camera_width = camera_width
+  M.camera_height = camera_height
   M.projection_left = projection_left
   M.projection_right = projection_right
   M.projection_top = projection_top
   M.projection_bottom = projection_bottom
 
-  viewport_to_projection_scale_x = projection_width / viewport_width
-  viewport_to_projection_scale_y = projection_height / viewport_height
-  projection_to_viewport_scale_x = viewport_width / projection_width
-  projection_to_viewport_scale_y = viewport_height / projection_height
+  viewport_to_camera_scale_x = camera_width / viewport_width
+  viewport_to_camera_scale_y = camera_height / viewport_height
+  camera_to_viewport_scale_x = viewport_width / camera_width
+  camera_to_viewport_scale_y = viewport_height / camera_height
   design_to_window_scale_x = window_width / design_width
   design_to_window_scale_y = window_height / design_height
-  M.viewport_to_projection_scale_x = viewport_to_projection_scale_x
-  M.viewport_to_projection_scale_y = viewport_to_projection_scale_y
-  M.projection_to_viewport_scale_x = projection_to_viewport_scale_x
-  M.projection_to_viewport_scale_y = projection_to_viewport_scale_y
+  M.viewport_to_camera_scale_x = viewport_to_camera_scale_x
+  M.viewport_to_camera_scale_y = viewport_to_camera_scale_y
+  M.camera_to_viewport_scale_x = camera_to_viewport_scale_x
+  M.camera_to_viewport_scale_y = camera_to_viewport_scale_y
 
   design_offset_x = -viewport_origin_x * (design_width / window_width)
   design_offset_y = -viewport_origin_y * (design_height / window_height)
@@ -160,19 +166,19 @@ local function viewport_to_window(x, y)
 end
 M.viewport_to_window = viewport_to_window
 
-local function viewport_to_projection(x, y)
-  local new_x = x * viewport_to_projection_scale_x + projection_left
-  local new_y = y * viewport_to_projection_scale_y + projection_bottom
+local function viewport_to_camera(x, y)
+  local new_x = x * viewport_to_camera_scale_x + projection_left
+  local new_y = y * viewport_to_camera_scale_y + projection_bottom
   return new_x, new_y
 end
-M.viewport_to_projection = viewport_to_projection
+M.viewport_to_camera = viewport_to_camera
 
-local function projection_to_viewport(x, y)
-  local new_x = (x - projection_left) * projection_to_viewport_scale_x
-  local new_y = (y - projection_bottom) * projection_to_viewport_scale_y
+local function camera_to_viewport(x, y)
+  local new_x = (x - projection_left) * camera_to_viewport_scale_x
+  local new_y = (y - projection_bottom) * camera_to_viewport_scale_y
   return new_x, new_y
 end
-M.projection_to_viewport = projection_to_viewport
+M.camera_to_viewport = camera_to_viewport
 
 local function design_to_window(x, y)
   return x * design_to_window_scale_x, y * design_to_window_scale_y
@@ -184,27 +190,27 @@ local function design_to_viewport(x, y)
 end
 M.design_to_viewport = design_to_viewport
 
-local function design_to_projection(x, y)
-  return viewport_to_projection(design_to_viewport(x, y))
+local function design_to_camera(x, y)
+  return viewport_to_camera(design_to_viewport(x, y))
 end
-M.design_to_projection = design_to_projection
+M.design_to_camera = design_to_camera
 
-local function window_to_projection(x, y)
-  return viewport_to_projection(window_to_viewport(x, y))
+local function window_to_camera(x, y)
+  return viewport_to_camera(window_to_viewport(x, y))
 end
-M.window_to_projection = window_to_projection
+M.window_to_camera = window_to_camera
 
-local function projection_to_window(x, y)
-  return viewport_to_window(projection_to_viewport(x, y))
+local function camera_to_window(x, y)
+  return viewport_to_window(camera_to_viewport(x, y))
 end
-M.projection_to_window = projection_to_window
+M.camera_to_window = camera_to_window
 
 function M.action_to_viewport(action)
   return window_to_viewport(action.screen_x, action.screen_y)
 end
 
-function M.action_to_projection(action)
-  return window_to_projection(action.screen_x, action.screen_y)
+function M.action_to_camera(action)
+  return window_to_camera(action.screen_x, action.screen_y)
 end
 
 local function action_to_offset_design(action)

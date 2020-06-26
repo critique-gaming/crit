@@ -196,10 +196,10 @@ function Tooltip.get_sprite_bounding_box(sprite, padding)
   end
 
   size = vmul(size, scale)
-  size.x = size.x * Layout.projection_to_viewport_scale_x
-  size.y = size.y * Layout.projection_to_viewport_scale_y
+  size.x = size.x * Layout.camera_to_viewport_scale_x
+  size.y = size.y * Layout.camera_to_viewport_scale_y
 
-  position.x, position.y = Layout.projection_to_viewport(position.x, position.y)
+  position.x, position.y = Layout.camera_to_viewport(position.x, position.y)
   return { center = position, size = size }
 end
 

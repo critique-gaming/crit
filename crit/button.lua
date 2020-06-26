@@ -151,6 +151,10 @@ function Button.new(node, self)
   self.focus_context = self.focus_context or input_state.default_focus_context
   self.on_pass_focus = self.on_pass_focus or Button_default_on_pass_focus
 
+  if self.keep_hover == nil then
+    self.keep_hover = true
+  end
+
   self.padding = self.padding or {
     left = self.padding_left or 0,
     right = self.padding_right or 0,

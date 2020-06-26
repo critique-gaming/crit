@@ -44,13 +44,13 @@ function init(self)
 		on_state_change = Button.fade,
 	})
 
-	-- A button with keep_hover = true, after it is un-pressed will go back to
-	-- STATE_HOVER instead of STATE_DEFAULT
+	-- A button with keep_hover = false, after it is un-pressed will go to
+	-- STATE_DEFAULT instead of STATE_HOVER
 	self.keep_hover_button = Button.new(gui.get_node("keep_hover"), {
 		on_state_change = Button.fade,
-		keep_hover = true,
+		keep_hover = false,
 		action = function ()
-			print("Keep hover button pressed");
+			print("Keep hover false button pressed");
 		end,
 	})
 

@@ -864,7 +864,7 @@ nodes {
   }
   type: TYPE_TEXT
   blend_mode: BLEND_MODE_ALPHA
-  text: "Hover kept after click"
+  text: "Hover not kept after click"
   font: "system_font"
   id: "keep_hover_label"
   xanchor: XANCHOR_NONE

@@ -13,6 +13,7 @@ each designed to solve one specific problem. Use as much or as little as you nee
 
 * UI
   * [Buttons](./docs/button.md)
+  * [Tooltips](./docs/tooltip.md)
   * [Responsive layout](./docs/layout.md)
   * [Drag and drop](./docs/drag_and_drop.md)
   * [Scroll views](./docs/scroll.md)
@@ -28,10 +29,12 @@ each designed to solve one specific problem. Use as much or as little as you nee
   * [Mouse cursor hiding manager](./docs/cursor.md)
 * [Internationalisation](./docs/intl.md)
 * Utilities
+  * [Color manipulation utilities](./docs/colors.md)
   * [Table manipulation utilities](./docs/table_util.md)
   * [Low-pass and high-pass filters](./docs/filters.md)
   * [The environment file](./docs/env.md)
-  * [System configuration constants]('./docs/sys_config.md)
+  * [System configuration constants](./docs/sys_config.md)
+* [Editor scripts](./docs/editor_scripts.md)
 
 ## Examples
 

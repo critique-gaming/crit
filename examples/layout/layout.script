@@ -5,7 +5,7 @@ local h_window_change_size = hash("window_change_size")
 
 function init(self)
 	self.layout = Layout.new({ is_go = true })
-	self.layout:add_node(go.get_id("bottom"), { grav_x = 0.5, grav_y = 0 })
+	self.layout.add_node(go.get_id("bottom"), { grav_x = 0.5, grav_y = 0 })
 
 	self.sub_id = dispatcher.subscribe({ h_window_change_size })
 
@@ -18,6 +18,6 @@ end
 
 function on_message(self, message_id, message, sender)
 	if message_id == h_window_change_size then
-		self.layout:place()
+		self.layout.place()
 	end
 end

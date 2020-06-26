@@ -13,7 +13,7 @@ function init(self)
 		end,
 	})
 
-	self.scroll:add_node(content_node)
+	self.scroll.add_node(content_node)
 
 	self.scrollbar1 = ScrollBar.new(self.scroll, gui.get_node("scrollknob1"), {
 		knob = true,
@@ -26,17 +26,17 @@ end
 
 
 function update(self, dt)
-	self.scroll:update(dt)
+	self.scroll.update(dt)
 end
 
 function on_input(self, action_id, action)
-	if self.scroll:on_input(action_id, action) then
+	if self.scroll.on_input(action_id, action) then
 		return true
 	end
-	if self.scrollbar1:on_input(action_id, action) then
+	if self.scrollbar1.on_input(action_id, action) then
 		return true
 	end
-	if self.scrollbar2:on_input(action_id, action) then
+	if self.scrollbar2.on_input(action_id, action) then
 		return true
 	end
 end

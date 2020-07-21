@@ -22,7 +22,7 @@ jobs:
         tar xf discount.tar.bz2 &&
         cd discount-2.2.6 &&
         ./configure.sh &&
-        make &&
+        make CFLAGS="-fPIC" &&
         sudo make install &&
         luarocks install https://gitlab.com/craigbarnes/lua-discount/-/raw/master/discount-scm-1.rockspec
     - name: Install LDoc

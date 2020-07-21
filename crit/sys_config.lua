@@ -1,3 +1,7 @@
+--- System configuration constants.
+-- @module crit.sys_config
+-- @todo
+
 local sys_info = sys.get_sys_info()
 local system_name = sys_info.system_name
 local is_mobile = system_name == "iPhone OS" or system_name == "Android"

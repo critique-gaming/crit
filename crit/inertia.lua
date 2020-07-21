@@ -1,3 +1,7 @@
+--- Panning inertia.
+-- @module crit.inertia
+-- @todo
+
 local filters = require "crit.filters"
 
 local Inertia = {}

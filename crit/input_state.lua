@@ -1,3 +1,7 @@
+--- Keyboard/gamepad focus state.
+-- @module crit.input_state
+-- @todo
+
 local INPUT_METHOD_KEYBOARD = 0
 local INPUT_METHOD_GAMEPAD = 1
 local INPUT_METHOD_MOUSE = 2

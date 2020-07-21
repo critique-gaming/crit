@@ -1,3 +1,7 @@
+--- Internationalization.
+-- @module crit.intl
+-- @todo
+
 local languages = {}
 local fallback_languages = {}
 local warn_fallback = false

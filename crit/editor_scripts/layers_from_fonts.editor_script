@@ -1,3 +1,16 @@
+--[[-
+  Make layers from fonts.
+
+  In the Outline, select a number of fonts from a GUI file, right click on them,
+  then pick `Make layers with these names`.
+
+  Then, **after you make sure that the GUI file is saved to disk**, right click
+  on the root "Gui" node in the Outline and pick `Make layers with saved names`.
+
+  This will create one layer for each font that you initially selected.
+]]
+-- @script layers_from_fonts.editor_script
+
 local M = {}
 
 local saved_names = nil

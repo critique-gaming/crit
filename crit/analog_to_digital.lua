@@ -1,3 +1,7 @@
+--- Analog to digital thumb stick conversion.
+-- @module crit.analog_to_digital
+-- @todo
+
 local h_gamepad_lstick_up = hash("gamepad_lstick_up")
 local h_gamepad_lstick_digital_up = hash("gamepad_lstick_digital_up")
 local h_gamepad_lstick_down = hash("gamepad_lstick_down")

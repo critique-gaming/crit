@@ -1,3 +1,7 @@
+--- Table manipulation utilities.
+-- @module crit.table_util
+-- @todo
+
 local M = {}
 
 local function deep_clone(t, transformer)

@@ -1,3 +1,7 @@
+--- Keyboard/gamepad focus giver.
+-- @module crit.env
+-- @todo
+
 local input_state = require "crit.input_state"
 local Button = require "crit.button"
 local analog_to_digital = require "crit.analog_to_digital"

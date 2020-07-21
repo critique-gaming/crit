@@ -1,3 +1,7 @@
+--- Drag and drop.
+-- @module crit.drag_and_drop
+-- @todo
+
 local pick = require "crit.pick"
 
 local default_action_to_position = function (action)

@@ -1,3 +1,7 @@
+--- Coroutine progression system
+-- @module crit.progression
+-- @todo
+
 local h_progression_change_context = hash("progression_change_context")
 
 local progression = {}

@@ -1,3 +1,7 @@
+--- Scroll bars.
+-- @module crit.scrollbar
+-- @todo
+
 local M = {
   default_gui_action_to_position = function (action)
     return action.x, action.y

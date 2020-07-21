@@ -1,3 +1,7 @@
+--- Mouse cursor hiding manager.
+-- @module crit.cursor
+-- @todo
+
 local M = {
   PRIORITY_DEFAULT = 0,
   PRIORITY_INPUT_METHOD = 1,

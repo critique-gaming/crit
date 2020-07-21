@@ -1,3 +1,0 @@
-# Panning inertia
-
-> TODO

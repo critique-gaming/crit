@@ -1,3 +1,7 @@
+--- The environment file.
+-- @module crit.env
+-- @todo
+
 local sys_config = require "crit.sys_config"
 
 local function load_from_resource()

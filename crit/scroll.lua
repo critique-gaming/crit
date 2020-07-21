@@ -1,3 +1,7 @@
+--- Scroll views.
+-- @module crit.scroll
+-- @todo
+
 local filters = require "crit.filters"
 local Inertia = require "crit.inertia"
 

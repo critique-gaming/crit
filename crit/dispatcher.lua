@@ -1,3 +1,7 @@
+--- The message dispatcher.
+-- @module crit.dispatcher
+-- @todo
+
 local M = {}
 
 local generated_id_count = 1

@@ -1,13 +1,17 @@
 # Crit - Building blocks for Defold games
 
-A battle-tested collection of un-opinionated modules we use at [Critique Gaming]
-to make games with [Defold].
+A battle-tested collection of un-opinionated modules we use at 
+[Critique Gaming](https://critique-gaming.com)
+to make games with [Defold](https://defold.com).
 
 The modules are self-contained and depend on each other as little as possible,
 each designed to solve one specific problem. Use as much or as little as you need.
 
-[Critique Gaming]: https://critique-gaming.com
-[Defold]: https://defold.com
+**Links:**
+
+* [GitHub repo](https://github.com/critique-gaming/crit)
+* [Documentation](https://critique-gaming.github.io/crit)
+* [Starter project](https://github.com/critique-gaming/crit-boilerplate)
 
 ## Modules
 
@@ -15,17 +19,18 @@ each designed to solve one specific problem. Use as much or as little as you nee
   * [Buttons](https://critique-gaming.github.io/crit/modules/crit.button.html)
   * [Tooltips](https://critique-gaming.github.io/crit/modules/crit.tooltip.html)
   * [Responsive layout](https://critique-gaming.github.io/crit/modules/crit.layout.html)
-  * [Drag and drop](./docs/drag_and_drop.md)
-  * [Scroll views](./docs/scroll.md)
-  * [Scroll bars](./docs/scrollbar.md)
+  * [Drag and drop](https://critique-gaming.github.io/crit/modules/crit.drag_and_drop.html)
+  * [Scroll views](https://critique-gaming.github.io/crit/modules/crit.scroll.html)
+  * [Scroll bars](https://critique-gaming.github.io/crit/modules/crit.scrollbar.html)
   * [Sprite picking](https://critique-gaming.github.io/crit/modules/crit.pick.html)
-  * [Panning inertia](./docs/inertia.md)
+  * [Panning inertia](https://critique-gaming.github.io/crit/modules/crit.inertia.html)
 * Architecture
   * [The message dispatcher](./docs/dispatcher.md)
   * [Coroutine progression system](./docs/progression.md)
   * [Observables](https://critique-gaming.github.io/crit/modules/crit.observable.html)
 * Input
-  * [Keyboard/gamepad focus](./docs/focus.md)
+  * [Keyboard/gamepad focus](https://critique-gaming.github.io/crit/modules/crit.focus_giver.html)
+  * [Keyboard/gamepad focus state](https://critique-gaming.github.io/crit/modules/crit.input_state.html)
   * [Analog to digital thumb stick conversion](./docs/analog_to_digital.md)
   * [Mouse cursor hiding manager](./docs/cursor.md)
 * [Internationalisation](./docs/intl.md)
@@ -35,15 +40,16 @@ each designed to solve one specific problem. Use as much or as little as you nee
   * [Function utilities](https://critique-gaming.github.io/crit/modules/crit.func_util.html)
   * [Low-pass and high-pass filters](https://critique-gaming.github.io/crit/modules/crit.filters.html)
   * [The environment file](./docs/env.md)
-  * [System configuration constants](./docs/sys_config.md)
+  * [System configuration constants](https://critique-gaming.github.io/crit/modules/crit.sys_config.html)
   * [Switch between script contexts](https://critique-gaming.github.io/crit/modules/crit.context.html)
-* [Editor scripts](./docs/editor_scripts.md)
+* Editor scripts
+  * [Layers from fonts](https://critique-gaming.github.io/crit/scripts/layers_from_fonts.editor_script.html)
 
 ## Examples
 
 You can find usage examples in this repo. Alternatively, if you need a
 ready-to-go starter project based on Crit and [Monarch](https://github.com/britzl/monarch),
-check out [crit-boilerplate](https://github.com/dapetcu21/crit-boilerplate).
+check out [crit-boilerplate](https://github.com/critique-gaming/crit-boilerplate).
 
 ## Default input map
 

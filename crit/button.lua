@@ -582,6 +582,14 @@ local function run_animations(button, options, value, duration, animate_sprite, 
   end
 end
 
+local function resolve_value(values, state, button)
+  if not values then return nil end
+  if type(values) == "function" then
+    return values(state, button)
+  end
+  return values[state]
+end
+
 Button.default_fade_alpha = {
   [STATE_DEFAULT] = 1.0,
   [STATE_PRESSED] = 0.4,
@@ -606,8 +614,7 @@ end
 
 function Button.fade(options)
   return function (self, state, old_state)
-    local alpha = options and options.alpha
-    local value = alpha and alpha[state] or Button.default_fade_alpha[state]
+    local value = resolve_value(options and options.alpha, state, self) or Button.default_fade_alpha[state]
     local duration = resolve_duration(options and options.duration, state, old_state)
 
     run_animations(self, options, value, duration, fade_sprite, fade_label, fade_node)
@@ -650,8 +657,7 @@ end
 
 function Button.darken(options)
   return function (self, state, old_state)
-    local brightness = options and options.brightness
-    local value = brightness and brightness[state] or Button.default_darken_brightness[state]
+    local value = resolve_value(options and options.brightness, state, self) or Button.default_darken_brightness[state]
     local duration = resolve_duration(options and options.duration, state, old_state)
 
     run_animations(self, options, value, duration, darken_sprite, darken_label, darken_node)
@@ -682,8 +688,7 @@ end
 
 function Button.tint(options)
   return function (self, state, old_state)
-    local tint_color = options and options.color
-    local value = tint_color and tint_color[state] or Button.default_tint_color[state]
+    local value = resolve_value(options and options.color, state, self) or Button.default_tint_color[state]
     local duration = resolve_duration(options and options.duration, state, old_state)
 
     run_animations(self, options, value, duration, tint_sprite, tint_label, tint_node)

@@ -1,0 +1,339 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Crit API Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Crit</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Modules">Modules </a></li>
+<li><a href="#Examples">Examples </a></li>
+<li><a href="#Default_input_map">Default input map </a></li>
+</ul>
+
+
+<h2>Topics</h2>
+<ul class="">
+  <li><strong>README</strong></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/crit.button.html">crit.button</a></li>
+  <li><a href="../modules/crit.colors.html">crit.colors</a></li>
+  <li><a href="../modules/crit.context.html">crit.context</a></li>
+  <li><a href="../modules/crit.filters.html">crit.filters</a></li>
+  <li><a href="../modules/crit.func_util.html">crit.func_util</a></li>
+  <li><a href="../modules/crit.layout.html">crit.layout</a></li>
+  <li><a href="../modules/crit.observable.html">crit.observable</a></li>
+  <li><a href="../modules/crit.pick.html">crit.pick</a></li>
+  <li><a href="../modules/crit.tooltip.html">crit.tooltip</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h1>Crit - Building blocks for Defold games</h1>
+
+<p>A battle-tested collection of un-opinionated modules we use at <a href="https://critique-gaming.com">Critique Gaming</a>
+to make games with <a href="https://defold.com">Defold</a>.</p>
+
+<p>The modules are self-contained and depend on each other as little as possible,
+each designed to solve one specific problem. Use as much or as little as you need.</p>
+
+<p><a name="Modules"></a></p>
+
+<h2>Modules</h2>
+
+<ul>
+<li>UI
+
+<ul>
+<li><a href="https://critique-gaming.github.io/crit/modules/crit.button.html">Buttons</a></li>
+<li><a href="https://critique-gaming.github.io/crit/modules/crit.tooltip.html">Tooltips</a></li>
+<li><a href="https://critique-gaming.github.io/crit/modules/crit.layout.html">Responsive layout</a></li>
+<li><a href="./docs/drag_and_drop.md">Drag and drop</a></li>
+<li><a href="./docs/scroll.md">Scroll views</a></li>
+<li><a href="./docs/scrollbar.md">Scroll bars</a></li>
+<li><a href="https://critique-gaming.github.io/crit/modules/crit.pick.html">Sprite picking</a></li>
+<li><a href="./docs/inertia.md">Panning inertia</a></li>
+</ul>
+</li>
+<li>Architecture
+
+<ul>
+<li><a href="./docs/dispatcher.md">The message dispatcher</a></li>
+<li><a href="./docs/progression.md">Coroutine progression system</a></li>
+<li><a href="https://critique-gaming.github.io/crit/modules/crit.observable.html">Observables</a></li>
+</ul>
+</li>
+<li>Input
+
+<ul>
+<li><a href="./docs/focus.md">Keyboard/gamepad focus</a></li>
+<li><a href="./docs/analog_to_digital.md">Analog to digital thumb stick conversion</a></li>
+<li><a href="./docs/cursor.md">Mouse cursor hiding manager</a></li>
+</ul>
+</li>
+<li><a href="./docs/intl.md">Internationalisation</a></li>
+<li>Utilities
+
+<ul>
+<li><a href="https://critique-gaming.github.io/crit/modules/crit.colors.html">Color manipulation utilities</a></li>
+<li><a href="./docs/table_util.md">Table manipulation utilities</a></li>
+<li><a href="https://critique-gaming.github.io/crit/modules/crit.func_util.html">Function utilities</a></li>
+<li><a href="https://critique-gaming.github.io/crit/modules/crit.filters.html">Low-pass and high-pass filters</a></li>
+<li><a href="./docs/env.md">The environment file</a></li>
+<li><a href="./docs/sys_config.md">System configuration constants</a></li>
+<li><a href="https://critique-gaming.github.io/crit/modules/crit.context.html">Switch between script contexts</a></li>
+</ul>
+</li>
+<li><a href="./docs/editor_scripts.md">Editor scripts</a></li>
+</ul>
+
+
+<p><a name="Examples"></a></p>
+
+<h2>Examples</h2>
+
+<p>You can find usage examples in this repo. Alternatively, if you need a
+ready-to-go starter project based on Crit and <a href="https://github.com/britzl/monarch">Monarch</a>,
+check out <a href="https://github.com/dapetcu21/crit-boilerplate">crit-boilerplate</a>.</p>
+
+<p><a name="Default_input_map"></a></p>
+
+<h2>Default input map</h2>
+
+<p>These modules make little assumptions about your environment, but come with a
+few sensible defaults. You can configure each module to use different
+action IDs for its input, but the default input map is the following:</p>
+
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Action ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MOUSE_BUTTON_1</code></td>
+<td><code>touch</code></td>
+</tr>
+<tr>
+<td><code>MOUSE_WHEEL_UP</code></td>
+<td><code>wheel_up</code></td>
+</tr>
+<tr>
+<td><code>MOUSE_WHEEL_DOWN</code></td>
+<td><code>wheel_down</code></td>
+</tr>
+<tr>
+<td><code>KEY_UP</code></td>
+<td><code>key_up</code></td>
+</tr>
+<tr>
+<td><code>KEY_DOWN</code></td>
+<td><code>key_down</code></td>
+</tr>
+<tr>
+<td><code>KEY_LEFT</code></td>
+<td><code>key_left</code></td>
+</tr>
+<tr>
+<td><code>KEY_RIGHT</code></td>
+<td><code>key_right</code></td>
+</tr>
+<tr>
+<td><code>KEY_ENTER</code></td>
+<td><code>key_enter</code></td>
+</tr>
+<tr>
+<td><code>KEY_SPACE</code></td>
+<td><code>key_space</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_LPAD_LEFT</code></td>
+<td><code>gamepad_lpad_left</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_LPAD_RIGHT</code></td>
+<td><code>gamepad_lpad_right</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_LPAD_UP</code></td>
+<td><code>gamepad_lpad_up</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_LPAD_DOWN</code></td>
+<td><code>gamepad_lpad_down</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_RPAD_LEFT</code></td>
+<td><code>gamepad_rpad_left</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_RPAD_RIGHT</code></td>
+<td><code>gamepad_rpad_right</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_RPAD_UP</code></td>
+<td><code>gamepad_rpad_up</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_RPAD_DOWN</code></td>
+<td><code>gamepad_rpad_down</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_START</code></td>
+<td><code>gamepad_start</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_BACK</code></td>
+<td><code>gamepad_back</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_GUIDE</code></td>
+<td><code>gamepad_guide</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_RSHOULDER</code></td>
+<td><code>gamepad_rshoulder</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_LSHOULDER</code></td>
+<td><code>gamepad_lshoulder</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_LTRIGGER</code></td>
+<td><code>gamepad_ltrigger</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_RTRIGGER</code></td>
+<td><code>gamepad_rtrigger</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_LSTICK_LEFT</code></td>
+<td><code>gamepad_lstick_left</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_LSTICK_RIGHT</code></td>
+<td><code>gamepad_lstick_right</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_LSTICK_UP</code></td>
+<td><code>gamepad_lstick_up</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_LSTICK_DOWN</code></td>
+<td><code>gamepad_lstick_down</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_RSTICK_LEFT</code></td>
+<td><code>gamepad_rstick_left</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_RSTICK_RIGHT</code></td>
+<td><code>gamepad_rstick_right</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_RSTICK_UP</code></td>
+<td><code>gamepad_rstick_up</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_RSTICK_DOWN</code></td>
+<td><code>gamepad_rstick_down</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_LSTICK_CLICK</code></td>
+<td><code>gamepad_lstick_click</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_RSTICK_CLICK</code></td>
+<td><code>gamepad_rstick_click</code></td>
+</tr>
+</tbody>
+</table>
+
+
+<p><strong><a href="./docs/analog_to_digital.md">Synthetic digital thumbstick actions</a>:</strong></p>
+
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Digital action ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GAMEPAD_LSTICK_LEFT</code></td>
+<td><code>gamepad_lstick_digital_left</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_LSTICK_RIGHT</code></td>
+<td><code>gamepad_lstick_digital_right</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_LSTICK_UP</code></td>
+<td><code>gamepad_lstick_digital_up</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_LSTICK_DOWN</code></td>
+<td><code>gamepad_lstick_digital_down</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_RSTICK_LEFT</code></td>
+<td><code>gamepad_rstick_digital_left</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_RSTICK_RIGHT</code></td>
+<td><code>gamepad_rstick_digital_right</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_RSTICK_UP</code></td>
+<td><code>gamepad_rstick_digital_up</code></td>
+</tr>
+<tr>
+<td><code>GAMEPAD_RSTICK_DOWN</code></td>
+<td><code>gamepad_rstick_digital_down</code></td>
+</tr>
+</tbody>
+</table>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2020-07-21 23:07:36 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

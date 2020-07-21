@@ -23,7 +23,7 @@ jobs:
         cd discount-2.2.6 &&
         ./configure.sh &&
         make &&
-        make install &&
+        sudo make install &&
         luarocks install https://gitlab.com/craigbarnes/lua-discount/-/raw/master/discount-scm-1.rockspec
     - name: Install LDoc
       run: luarocks install ldoc

@@ -1,0 +1,5 @@
+project = 'Crit'
+package = 'crit'
+title = 'Crit API Reference'
+file = 'crit'
+format = 'markdown'

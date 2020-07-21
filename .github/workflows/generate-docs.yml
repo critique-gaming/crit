@@ -1,0 +1,28 @@
+name: Generate documentation
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Install Lua
+      uses: leafo/gh-actions-lua@v6
+      with:
+        luaVersion: "luajit-2.1.0-beta3"
+    - name: Install LuaRocs
+      uses: leafo/gh-actions-luarocks@v2
+    - name: Install LDoc
+      run: luarocks install ldoc
+    - name: Generate docs
+      run: ldoc .
+    - name: Deploy to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@3.5.8
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH: gh-pages
+        FOLDER: doc

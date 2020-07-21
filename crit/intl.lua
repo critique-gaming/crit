@@ -133,7 +133,8 @@ local function make_namespace(namespace_id, custom_loader)
     if not values then
       return entry
     end
-    return string.gsub(entry, "${([a-zA-Z_][a-zA-Z_0-9]*)}", values)
+    local s = string.gsub(entry, "${([a-zA-Z_][a-zA-Z_0-9]*)}", values)
+    return s
   end
 
   local function translate_text_node(node, key, values)

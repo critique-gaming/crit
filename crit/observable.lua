@@ -1,3 +1,7 @@
+--- Observables.
+-- @module crit.observable
+-- @todo
+
 local M = {}
 
 function M.subject()

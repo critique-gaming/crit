@@ -1,3 +1,7 @@
+--- Responsive layout.
+-- @module crit.layout
+-- @todo
+
 local M = {}
 
 local h_window_change_size = hash("window_change_size")

@@ -16,6 +16,15 @@ jobs:
         luaVersion: "luajit-2.1.0-beta3"
     - name: Install LuaRocks
       uses: leafo/gh-actions-luarocks@v2
+    - name: Install lua-discount
+      run: >
+        curl http://www.pell.portland.or.us/\~orc/Code/discount/discount-2.2.6.tar.bz2 > discount.tar.bz2 &&
+        tar xf discount.tar.bz2 &&
+        cd discount-2.2.6 &&
+        ./configure.sh &&
+        make &&
+        make install &&
+        luarocks install https://gitlab.com/craigbarnes/lua-discount/-/raw/master/discount-scm-1.rockspec
     - name: Install LDoc
       run: luarocks install ldoc
     - name: Generate docs

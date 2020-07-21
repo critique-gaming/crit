@@ -1,3 +1,0 @@
-# Responsive layouts
-
-> TODO

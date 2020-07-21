@@ -1,3 +1,7 @@
+--- Buttons.
+-- @module crit.button
+-- @todo
+
 local pick = require "crit.pick"
 local input_state = require "crit.input_state"
 local analog_to_digital = require "crit.analog_to_digital"

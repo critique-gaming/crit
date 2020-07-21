@@ -1,3 +1,7 @@
+--- Tooltips
+-- @module crit.tooltip
+-- @todo
+
 local Button = require "crit.button"
 local Layout = require "crit.layout"
 local dispatcher = require "crit.dispatcher"

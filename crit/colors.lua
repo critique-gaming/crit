@@ -1,3 +1,7 @@
+--- Color manipulation utilities.
+-- @module crit.colors
+-- @todo
+
 local vec4 = vmath.vector4
 
 local M = {

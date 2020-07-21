@@ -12,28 +12,31 @@ each designed to solve one specific problem. Use as much or as little as you nee
 ## Modules
 
 * UI
-  * [Buttons](./docs/button.md)
-  * [Tooltips](./docs/tooltip.md)
-  * [Responsive layout](./docs/layout.md)
+  * [Buttons](https://critique-gaming.github.io/crit/modules/crit.button.html)
+  * [Tooltips](https://critique-gaming.github.io/crit/modules/crit.tooltip.html)
+  * [Responsive layout](https://critique-gaming.github.io/crit/modules/crit.layout.html)
   * [Drag and drop](./docs/drag_and_drop.md)
   * [Scroll views](./docs/scroll.md)
   * [Scroll bars](./docs/scrollbar.md)
-  * [Sprite picking](./docs/pick.md)
+  * [Sprite picking](https://critique-gaming.github.io/crit/modules/crit.pick.html)
   * [Panning inertia](./docs/inertia.md)
 * Architecture
   * [The message dispatcher](./docs/dispatcher.md)
   * [Coroutine progression system](./docs/progression.md)
+  * [Observables](https://critique-gaming.github.io/crit/modules/crit.observable.html)
 * Input
   * [Keyboard/gamepad focus](./docs/focus.md)
   * [Analog to digital thumb stick conversion](./docs/analog_to_digital.md)
   * [Mouse cursor hiding manager](./docs/cursor.md)
 * [Internationalisation](./docs/intl.md)
 * Utilities
-  * [Color manipulation utilities](./docs/colors.md)
+  * [Color manipulation utilities](https://critique-gaming.github.io/crit/modules/crit.colors.html)
   * [Table manipulation utilities](./docs/table_util.md)
-  * [Low-pass and high-pass filters](./docs/filters.md)
+  * [Function utilities](https://critique-gaming.github.io/crit/modules/crit.func_util.html)
+  * [Low-pass and high-pass filters](https://critique-gaming.github.io/crit/modules/crit.filters.html)
   * [The environment file](./docs/env.md)
   * [System configuration constants](./docs/sys_config.md)
+  * [Switch between script contexts](https://critique-gaming.github.io/crit/modules/crit.context.html)
 * [Editor scripts](./docs/editor_scripts.md)
 
 ## Examples

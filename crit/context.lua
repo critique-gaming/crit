@@ -1,3 +1,7 @@
+--- Switch between script contexts.
+-- @module crit.context
+-- @todo
+
 local h_context_switch = hash("context_switch")
 
 local M = {}

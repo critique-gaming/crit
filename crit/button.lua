@@ -290,6 +290,10 @@ function Button.new(node, self)
     self:on_state_change(self.state)
   end
 
+  function self.refresh_state()
+    self:on_state_change(self.state, self.state)
+  end
+
   return self
 end
 

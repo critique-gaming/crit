@@ -1,5 +1,5 @@
 --- Keyboard/gamepad focus giver.
--- @module crit.env
+-- @module crit.focus_giver
 -- @todo
 
 local input_state = require "crit.input_state"

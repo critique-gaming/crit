@@ -7,6 +7,7 @@
 
   **Usage example:** [examples/filters/filters.script](https://github.com/critique-gaming/crit/blob/master/examples/filters/filters.script)
 ]]
+-- @module crit.filters
 
 local M = {}
 

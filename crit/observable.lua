@@ -43,6 +43,13 @@ function M.subject()
   return emit, subscribe
 end
 
+--- Unsubscribe from multiple subscriptions in one go.
+-- Creates `collect` and `dispose` functions. First, call `collect(f)` on all
+-- unsubscribe functions that you want to add to the disposer. Then, when you
+-- want to unsubscribe, call `dispose()` and all the collected functions will
+-- be called.
+-- @return[type=function (unsub: function)] `collect` function. Collects `unsub` functions.
+-- @return[type=function ()] `dispose` function. Calls all `collect`ed function.
 function M.disposer()
   local disposables
 

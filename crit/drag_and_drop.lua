@@ -27,6 +27,7 @@ function DragAndDrop.new(options)
   self.drop_targets = options.drop_targets or {}
 
   self.can_drag = options.can_drag or always
+  self.can_drop = options.can_drop or always
   self.on_drag_start = options.on_drag_start or nop
   self.on_drag_move = options.on_drag_move or DragAndDrop__move_source
   self.on_drag_cancel = options.on_drag_cancel or nop
@@ -105,10 +106,12 @@ function DragAndDrop.__index:on_input(action_id, action)
   if action_id == DragAndDrop.click_action_id and not self.manually_dragging then
     if action.pressed then
       local drag_source = DragAndDrop__get_picked_item(self.drag_sources, action)
-      self.current_drag_source = drag_source
-      if drag_source then
+      if drag_source and self.can_drag(drag_source) then
+        self.current_drag_source = drag_source
         self.x, self.y = DragAndDrop__action_to_position(drag_source, action)
         self.on_drag_start(drag_source)
+      else
+        self.current_drag_source = nil
       end
     else
       local drag_source = self.current_drag_source
@@ -121,7 +124,7 @@ function DragAndDrop.__index:on_input(action_id, action)
         if action.released then
           self.current_drag_source = nil
           local drop_target = DragAndDrop__get_picked_item(self.drop_targets, action, function (target)
-            return self.can_drag(drag_source, target)
+            return self.can_drop(drag_source, target)
           end)
           if drop_target then
             self.on_drag_commit(drag_source, drop_target)

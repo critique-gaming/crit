@@ -30,7 +30,7 @@ function init(self)
 	self.dnd = DragAndDrop.new({
 		drag_sources = sources,
 		drop_targets = targets,
-		can_drag = function (drag_source, drop_target)
+		can_drop = function (drag_source, drop_target)
 			return not drop_target.occupied
 		end,
 		on_drag_start = function (drag_source)

@@ -6,7 +6,6 @@ local filters = require "crit.filters"
 local Inertia = require "crit.inertia"
 
 local filter = filters.low_pass(3.0)
-local filter_vel = filters.low_pass(1.0)
 
 local Scroll = {
   click_action_id = hash("touch"),

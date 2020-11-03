@@ -31,7 +31,7 @@ function M.new(opts)
     enabled = true,
   }
 
-  local function FocusGiver_pass_focus(self, input_method, nav_action)
+  local function FocusGiver_pass_focus(self_, input_method, nav_action)
     local focus_attempt_input_method = focus_context.focus_attempt_input_method
     local focus_attempt_caused_by_user = focus_context.focus_attempt_caused_by_user
     local something_is_focused = focus_context.something_is_focused
@@ -46,7 +46,7 @@ function M.new(opts)
       focus_context.focus_attempt_caused_by_user = false
     end
     focus_context.something_is_focused = true
-    local did_focus = self:on_pass_focus(nav_action, input_method)
+    local did_focus = self_:on_pass_focus(nav_action, input_method)
     focus_context.focus_attempt_input_method = focus_attempt_input_method
     focus_context.focus_attempt_caused_by_user = focus_attempt_caused_by_user
     if not did_focus then
@@ -99,8 +99,8 @@ function M.new(opts)
     self.enabled = enabled
   end
 
-  local on_input = analog_to_digital.wrap_on_input(function (self, action_id, action)
-    if not self.enabled then
+  local on_input = analog_to_digital.wrap_on_input(function (self_, action_id, action)
+    if not self_.enabled then
       return
     end
 
@@ -128,7 +128,7 @@ function M.new(opts)
       return
     end
 
-    return FocusGiver_pass_focus(self,
+    return FocusGiver_pass_focus(self_,
       is_gamepad and INPUT_METHOD_GAMEPAD or INPUT_METHOD_KEYBOARD,
       nav_action
     )

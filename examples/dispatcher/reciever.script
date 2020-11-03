@@ -14,7 +14,7 @@ end
 function init(self)
 	self.value = true
 	set_color(self.value)
-	
+
 	self.sub_id = dispatcher.subscribe({ h_toggle })
 end
 

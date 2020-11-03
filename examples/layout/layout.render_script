@@ -9,7 +9,11 @@ local function fixed_projection(near, far, zoom)
     local projected_height = render.get_window_height() / (zoom or 1)
     local xoffset = -(projected_width - render.get_width()) / 2
     local yoffset = -(projected_height - render.get_height()) / 2
-    return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near, far)
+    return vmath.matrix4_orthographic(
+        xoffset, xoffset + projected_width,
+        yoffset, yoffset + projected_height,
+        near, far
+    )
 end
 --
 -- projection that centers and fits content with maintained aspect ratio
@@ -25,9 +29,9 @@ end
 --
 -- projection that stretches content
 --
-local function stretch_projection(near, far)
-    return vmath.matrix4_orthographic(0, render.get_width(), 0, render.get_height(), near, far)
-end
+-- local function stretch_projection(near, far)
+--     return vmath.matrix4_orthographic(0, render.get_width(), 0, render.get_height(), near, far)
+-- end
 
 local function configure_layout(self)
     if self.black_bars then
@@ -84,7 +88,11 @@ end
 function update(self)
     render.set_depth_mask(true)
     render.set_stencil_mask(0xff)
-    render.clear({[render.BUFFER_COLOR_BIT] = self.clear_color, [render.BUFFER_DEPTH_BIT] = 1, [render.BUFFER_STENCIL_BIT] = 0})
+    render.clear({
+        [render.BUFFER_COLOR_BIT] = self.clear_color,
+        [render.BUFFER_DEPTH_BIT] = 1,
+        [render.BUFFER_STENCIL_BIT] = 0,
+    })
 
     -- Setting the viewport from Layout
     render.set_viewport(

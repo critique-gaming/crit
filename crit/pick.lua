@@ -2,19 +2,6 @@
 -- One-function module that tells you if a point falls inside of a sprite or not.
 -- @module crit.pick
 
---[[
-**Arguments:**
-  * `sprite_url`: `url | string`. 
-  * `x`, `y`: `number`. The point (in world space) to do the check on.
-  * `padding`: `table`. *Optional.* By how much should the hitbox of the sprite
-  be expanded or constricted.
-    * `top`, `bottom`, `left`, `right`: `number`. Padding values. Can also be negative.
-
-**Return value:**
-
-]]
-
-
 local M = {}
 
 local h_size = hash("size")

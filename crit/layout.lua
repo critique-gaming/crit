@@ -291,11 +291,11 @@ function M.new(opts)
     msg.post("#", h_window_change_size, { width = 0, height = 0 })
   end
 
-  function self.add_node(node, opts)
-    opts = opts or empty
+  function self.add_node(node, node_options)
+    node_options = node_options or empty
     len = len + 1
 
-    local scale_by = opts.scale_by or M.default_scale_by
+    local scale_by = node_options.scale_by or M.default_scale_by
     if type(scale_by) == "number" then
       local const = scale_by
       scale_by = function () return const end
@@ -303,10 +303,10 @@ function M.new(opts)
       scale_by = scale_func[scale_by]
     end
 
-    local resize = opts.resize_x or opts.resize_y or false
+    local resize = node_options.resize_x or node_options.resize_y or false
 
-    local grav_x = opts.grav_x or 0.5
-    local grav_y = opts.grav_y or 0.5
+    local grav_x = node_options.grav_x or 0.5
+    local grav_y = node_options.grav_y or 0.5
 
     local design_grav_x = grav_x - initial_grav_x
     local design_grav_y = grav_y - initial_grav_y
@@ -314,15 +314,15 @@ function M.new(opts)
 
     local node_spec = {
       node = node,
-      position = opts.position or (is_go and go.get_position(node) or gui.get_position(node)),
+      position = node_options.position or (is_go and go.get_position(node) or gui.get_position(node)),
       scale = is_go and go.get_scale(node) or gui.get_scale(node),
       size = resize and (is_go and go.get(node, h_size) or gui.get_size(node)),
       grav_x = grav_x,
       grav_y = grav_y,
       pivot = pivot,
       scale_by = scale_by,
-      resize_x = opts.resize_x or false,
-      resize_y = opts.resize_y or false,
+      resize_x = node_options.resize_x or false,
+      resize_y = node_options.resize_y or false,
     }
 
     nodes[len] = node_spec

@@ -176,6 +176,17 @@ function M.find(t, predicate)
   return nil
 end
 
+function M.includes(t, item)
+  local n = #t
+  for key = 1, n do
+    local value = t[key]
+    if value == item then
+      return true
+    end
+  end
+  return false
+end
+
 local function dump(x, identation)
   identation = identation or ""
   if type(x) == "table" then

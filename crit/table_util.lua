@@ -4,6 +4,8 @@
 
 local M = {}
 
+M.unpack = unpack or table.unpack
+
 local function deep_clone(t, transformer)
   if transformer then
     t = transformer(t)

@@ -2,6 +2,8 @@
 -- @module crit.layout
 -- @todo
 
+-- luacheck: globals safearea
+
 local M = {}
 
 local h_window_change_size = hash("window_change_size")
@@ -43,6 +45,10 @@ Coordinate spaces:
   corresponds to action.x/action.y), then offset so that its origin matches
   the viewport origin, so that gui.pick_node() works correctly if you have
   an offset viewport.
+
+* Safe area: UI-safe region of the viewport (for devices with notches or curved
+  screen corners). Defined by safe_left / safe_right / safe_top / safe_bottom in
+  viewport coordinates.
 ]]
 
 local window_width, window_height
@@ -56,6 +62,9 @@ local design_offset_x, design_offset_y
 local projection, gui_projection
 local projection_left, projection_right
 local projection_top, projection_bottom
+
+local safe_left, safe_right, safe_top, safe_bottom
+local projection_safe_left, projection_safe_right, projection_safe_top, projection_safe_bottom
 
 local viewport_to_camera_scale_x, viewport_to_camera_scale_y
 local camera_to_viewport_scale_x, camera_to_viewport_scale_y
@@ -133,6 +142,34 @@ function M.set_metrics(metrics)
 
   design_offset_x = -viewport_origin_x * (design_width / window_width)
   design_offset_y = -viewport_origin_y * (design_height / window_height)
+
+  if metrics.safe_left or metrics.safe_right or metrics.safe_top or metrics.safe_bottom then
+    safe_left = metrics.safe_left or 0
+    safe_right = metrics.safe_right or 0
+    safe_top = metrics.safe_top or 0
+    safe_bottom = metrics.safe_bottom or 0
+  else
+    local safe_area = safearea and safearea.get_insets() or {}
+    safe_left = math.max(0, (safe_area.left or 0) - viewport_origin_x)
+    safe_bottom = math.max(0, (safe_area.bottom or 0) - viewport_origin_y)
+    safe_right = math.min(viewport_width, window_width - viewport_origin_x - (safe_area.right or 0))
+    safe_top = math.min(viewport_height, window_height - viewport_origin_y - (safe_area.top or 0))
+  end
+
+  projection_safe_left = projection_left + camera_to_viewport_scale_x * safe_left
+  projection_safe_right = projection_left + camera_to_viewport_scale_x * safe_right
+  projection_safe_top = projection_bottom + camera_to_viewport_scale_y * safe_top
+  projection_safe_bottom = projection_bottom + camera_to_viewport_scale_y * safe_bottom
+
+  M.safe_left = safe_left
+  M.safe_right = safe_right
+  M.safe_top = safe_top
+  M.safe_bottom = safe_bottom
+
+  M.projection_safe_left = projection_safe_left
+  M.projection_safe_right = projection_safe_right
+  M.projection_safe_top = projection_safe_top
+  M.projection_safe_bottom = projection_safe_bottom
 end
 
 M.set_metrics({
@@ -228,12 +265,20 @@ end
 
 -- Layout instances
 
-local function get_gui_metrics()
+function M.default_get_gui_metrics()
   return 0, 0, viewport_width, viewport_height
 end
 
-local function get_go_metrics()
+function M.default_get_go_metrics()
   return projection_left, projection_bottom, projection_right, projection_top
+end
+
+function M.default_get_gui_safe_metrics()
+  return safe_left, safe_bottom, safe_right, safe_top
+end
+
+function M.default_get_go_safe_metrics()
+  return projection_safe_left, projection_safe_bottom, projection_safe_right, projection_safe_top
 end
 
 local scale_func = {}
@@ -261,9 +306,16 @@ function M.new(opts)
   local self = {}
 
   local is_go = opts and opts.is_go or false
+  local safe_area = opts and opts.safe_area
+  if safe_area == nil then
+    safe_area = true
+  end
 
-  self.get_metrics = opts and opts.get_metrics or
-    (is_go and get_go_metrics or get_gui_metrics)
+  self.get_metrics = opts and opts.get_metrics or (
+    safe_area
+      and (is_go and M.default_get_go_safe_metrics or M.default_get_gui_safe_metrics)
+      or (is_go and M.default_get_go_metrics or M.default_get_gui_metrics)
+  )
 
   local i_left, i_bottom, i_right, i_top
   if is_go then

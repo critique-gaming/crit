@@ -177,20 +177,31 @@ end
 
 -- Callback helpers
 
+local unpack = unpack or table.unpack
 function progression.make_callback()
-  local co = coroutine.running()
-  local should_wait = false
+  local waiting_threads
+  local pending_args
 
   local function callback(...)
-    local wait = should_wait
-    should_wait = nil
-    if wait then progression.resume(co, ...) end
+    if pending_args then return end
+    pending_args = { ... }
+
+    if waiting_threads then
+      for co in pairs(waiting_threads) do
+        progression.resume(co, ...)
+      end
+    end
   end
 
   local function wait_for_callback()
-    if should_wait == nil then return end
-    should_wait = true
-    return coroutine.yield(function () should_wait = should_wait and false end)
+    if pending_args then
+      return unpack(pending_args)
+    end
+
+    waiting_threads = waiting_threads or {}
+    local co = coroutine.running()
+    waiting_threads[co] = true
+    return coroutine.yield(function () waiting_threads[co] = nil end)
   end
 
   return callback, wait_for_callback

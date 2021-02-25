@@ -156,10 +156,10 @@ function M.set_metrics(metrics)
     safe_top = math.min(viewport_height, window_height - viewport_origin_y - (safe_area.top or 0))
   end
 
-  projection_safe_left = projection_left + camera_to_viewport_scale_x * safe_left
-  projection_safe_right = projection_left + camera_to_viewport_scale_x * safe_right
-  projection_safe_top = projection_bottom + camera_to_viewport_scale_y * safe_top
-  projection_safe_bottom = projection_bottom + camera_to_viewport_scale_y * safe_bottom
+  projection_safe_left = projection_left + viewport_to_camera_scale_x * safe_left
+  projection_safe_right = projection_left + viewport_to_camera_scale_x * safe_right
+  projection_safe_top = projection_bottom + viewport_to_camera_scale_y * safe_top
+  projection_safe_bottom = projection_bottom + viewport_to_camera_scale_y * safe_bottom
 
   M.safe_left = safe_left
   M.safe_right = safe_right
@@ -332,8 +332,7 @@ function M.new(opts)
 
   local initial_width = i_right - i_left
   local initial_height = i_top - i_bottom
-  local initial_grav_x = -i_left / initial_width
-  local initial_grav_y = -i_bottom / initial_height
+  local initial_offset = vmath.vector3(i_left, i_bottom, 0.0)
 
   local len = 0
   local nodes = {}
@@ -360,9 +359,7 @@ function M.new(opts)
     local grav_x = node_options.grav_x or 0.5
     local grav_y = node_options.grav_y or 0.5
 
-    local design_grav_x = grav_x - initial_grav_x
-    local design_grav_y = grav_y - initial_grav_y
-    local pivot = vmath.vector3(initial_width * design_grav_x, initial_height * design_grav_y, 0.0)
+    local pivot = vmath.vector3(initial_width * grav_x, initial_height * grav_y, 0.0) + initial_offset
 
     local node_spec = {
       node = node,
@@ -391,14 +388,11 @@ function M.new(opts)
     local scale_x = width / design_width_
     local scale_y = height / design_height_
 
-    local global_grav_x = -left / width
-    local global_grav_y = -bottom / height
-
     for i, node in ipairs(nodes) do
-      local grav_x = node.grav_x - global_grav_x
-      local grav_y = node.grav_y - global_grav_y
+      local grav_x = node.grav_x
+      local grav_y = node.grav_y
       local scale = node.scale_by(width, height, design_width_, design_height_, scale_x, scale_y)
-      local pivot = vmath.vector3(width * grav_x, height * grav_y, 0.0)
+      local pivot = vmath.vector3(left + width * grav_x, bottom + height * grav_y, 0.0)
 
       local new_pos = scale * (node.position - node.pivot) + pivot
       local new_scale = node.scale * scale

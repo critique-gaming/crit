@@ -121,7 +121,6 @@
         "assert_not_type",
         "assert_same",
         "assert_unique",
-        "safearea",
     ],
     "Lua.runtime.version": "LuaJIT"
 }

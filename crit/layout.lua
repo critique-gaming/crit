@@ -2,8 +2,6 @@
 -- @module crit.layout
 -- @todo
 
--- luacheck: globals safearea
-
 local M = {}
 
 local h_window_change_size = hash("window_change_size")
@@ -69,6 +67,8 @@ local projection_safe_left, projection_safe_right, projection_safe_top, projecti
 local viewport_to_camera_scale_x, viewport_to_camera_scale_y
 local camera_to_viewport_scale_x, camera_to_viewport_scale_y
 local design_to_window_scale_x, design_to_window_scale_y
+
+local safearea = _G.safearea
 
 function M.set_metrics(metrics)
   window_width = metrics.window_width

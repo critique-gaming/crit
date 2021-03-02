@@ -1,5 +1,6 @@
 local progression = require "crit.progression"
 local dispatcher = require "crit.dispatcher"
+local context = require "crit.context"
 
 local h_progression_init = hash("progression_init")
 local h_progression_change_context = hash("progression_change_context")
@@ -68,6 +69,8 @@ function progression._load_function(id, co)
 end
 
 function on_message(self, message_id, message, sender)
+  context.handle(message_id, message)
+
   if message_id == h_progression_init then
     progression._progression_script_url = msg.url()
     progression.detach(function ()

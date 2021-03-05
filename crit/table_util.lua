@@ -187,6 +187,16 @@ function M.includes(t, item)
   return false
 end
 
+function M.remove_item(t, item)
+  local n = #t
+  for i = 1, n do
+    if t[i] == item then
+      table.remove(t, i)
+      break
+    end
+  end
+end
+
 local function dump(x, identation)
   identation = identation or ""
   if type(x) == "table" then

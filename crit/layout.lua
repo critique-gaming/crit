@@ -68,6 +68,8 @@ local viewport_to_camera_scale_x, viewport_to_camera_scale_y
 local camera_to_viewport_scale_x, camera_to_viewport_scale_y
 local design_to_window_scale_x, design_to_window_scale_y
 
+local camera_z_near, camera_z_far, gui_z_near, gui_z_far
+
 local safearea = _G.safearea
 
 function M.set_metrics(metrics)
@@ -170,6 +172,16 @@ function M.set_metrics(metrics)
   M.projection_safe_right = projection_safe_right
   M.projection_safe_top = projection_safe_top
   M.projection_safe_bottom = projection_safe_bottom
+
+  camera_z_near = metrics.camera_z_near or -1
+  camera_z_far = metrics.camera_z_far or 1
+  gui_z_near = metrics.gui_z_near or -1
+  gui_z_far = metrics.gui_z_far or 1
+
+  M.camera_z_near = camera_z_near
+  M.camera_z_far = camera_z_far
+  M.gui_z_near = gui_z_near
+  M.gui_z_far = gui_z_far
 end
 
 M.set_metrics({
@@ -177,20 +189,28 @@ M.set_metrics({
   window_height = design_height,
 })
 
+function M._get_projection_matrix()
+  return vmath.matrix4_orthographic(
+    projection_left, projection_right,
+    projection_bottom, projection_top,
+    camera_z_near, camera_z_far
+  )
+end
+
 function M.get_projection_matrix()
   if not projection then
-    projection = vmath.matrix4_orthographic(
-      projection_left, projection_right,
-      projection_bottom, projection_top,
-      -1, 1
-    )
+    projection = M._get_projection_matrix()
   end
   return projection
 end
 
+function M._get_gui_projection_matrix()
+  return vmath.matrix4_orthographic(0, viewport_width, 0, viewport_height, gui_z_near, gui_z_far)
+end
+
 function M.get_gui_projection_matrix()
   if not gui_projection then
-    gui_projection = vmath.matrix4_orthographic(0, viewport_width, 0, viewport_height, -1, 1)
+    gui_projection = M._get_gui_projection_matrix()
   end
   return gui_projection
 end

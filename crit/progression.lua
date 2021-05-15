@@ -154,12 +154,12 @@ end
 local default_message_predicate = function () return true end
 
 -- predicate(message_id, message) => boolean
-function progression.wait_for_message(message_id, predicate)
+function progression.wait_for_message(message_id, predicate, dispatcher)
   message_id = hash(message_id)
   local co = coroutine.running()
-  progression._subscribe_to_message(message_id, co, predicate or default_message_predicate)
+  progression._subscribe_to_message(message_id, co, predicate or default_message_predicate, dispatcher)
   return coroutine.yield(function ()
-    progression._unsubscribe_from_message(message_id, co)
+    progression._unsubscribe_from_message(message_id, co, dispatcher)
   end)
 end
 

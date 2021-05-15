@@ -14,24 +14,27 @@ end
 
 function final(self)
   for i, sub in pairs(subscriptions) do
-    dispatcher.unsubscribe(sub.id)
+    sub.dispatcher.unsubscribe(sub.id)
   end
   subscriptions = {}
 end
 
-function progression._subscribe_to_message(message_id, co, handler)
+function progression._subscribe_to_message(message_id, co, handler, disp)
+  disp = disp or dispatcher
   local sub = subscriptions[message_id]
   if not sub then
     subscriptions[message_id] = {
-      id = dispatcher.subscribe({ message_id }),
+      id = disp.subscribe({ message_id }),
       handlers = { [co] = handler },
+      dispatcher = disp,
     }
   else
     sub.handlers[co] = handler
   end
 end
 
-function progression._unsubscribe_from_message(message_id, co)
+function progression._unsubscribe_from_message(message_id, co, disp)
+  disp = disp or dispatcher
   local sub = subscriptions[message_id]
   if not sub then return end
 
@@ -39,7 +42,7 @@ function progression._unsubscribe_from_message(message_id, co)
   handlers[co] = nil
 
   if next(handlers) == nil then
-    dispatcher.unsubscribe(sub.id)
+    disp.unsubscribe(sub.id)
     subscriptions[message_id] = nil
   end
 end

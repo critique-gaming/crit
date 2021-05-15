@@ -207,29 +207,8 @@ function Tooltip.get_sprite_bounding_box(sprite, padding)
   return { center = position, size = size }
 end
 
-local pivot_to_x = {
-  [gui.PIVOT_CENTER] = 0.5,
-  [gui.PIVOT_N] = 0.5,
-  [gui.PIVOT_NE] = 1.0,
-  [gui.PIVOT_E] = 1.0,
-  [gui.PIVOT_SE] = 1.0,
-  [gui.PIVOT_S] = 0.5,
-  [gui.PIVOT_SW] = 0.0,
-  [gui.PIVOT_W] = 0.0,
-  [gui.PIVOT_NW] = 0.0,
-}
-
-local pivot_to_y = {
-  [gui.PIVOT_CENTER] = 0.5,
-  [gui.PIVOT_N] = 1.0,
-  [gui.PIVOT_NE] = 1.0,
-  [gui.PIVOT_E] = 0.5,
-  [gui.PIVOT_SE] = 0.0,
-  [gui.PIVOT_S] = 0.0,
-  [gui.PIVOT_SW] = 0.0,
-  [gui.PIVOT_W] = 0.5,
-  [gui.PIVOT_NW] = 1.0,
-}
+local pivot_to_x = Layout.pivot_to_x
+local pivot_to_y = Layout.pivot_to_y
 
 function Tooltip.get_gui_node_bounding_box(node)
   local size = gui.get_size(node)

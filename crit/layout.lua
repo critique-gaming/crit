@@ -451,5 +451,34 @@ function M.new(opts)
   return self
 end
 
+local pivot_to_x = {
+  [gui.PIVOT_CENTER] = 0.5,
+  [gui.PIVOT_N] = 0.5,
+  [gui.PIVOT_NE] = 1.0,
+  [gui.PIVOT_E] = 1.0,
+  [gui.PIVOT_SE] = 1.0,
+  [gui.PIVOT_S] = 0.5,
+  [gui.PIVOT_SW] = 0.0,
+  [gui.PIVOT_W] = 0.0,
+  [gui.PIVOT_NW] = 0.0,
+}
+M.pivot_to_x = pivot_to_x
+
+local pivot_to_y = {
+  [gui.PIVOT_CENTER] = 0.5,
+  [gui.PIVOT_N] = 1.0,
+  [gui.PIVOT_NE] = 1.0,
+  [gui.PIVOT_E] = 0.5,
+  [gui.PIVOT_SE] = 0.0,
+  [gui.PIVOT_S] = 0.0,
+  [gui.PIVOT_SW] = 0.0,
+  [gui.PIVOT_W] = 0.5,
+  [gui.PIVOT_NW] = 1.0,
+}
+M.pivot_to_y = pivot_to_y
+
+function M.pivot_to_anchor(pivot)
+  return vmath.vector3(pivot_to_x[pivot], pivot_to_y[pivot], 0)
+end
 
 return M

@@ -24,6 +24,10 @@ end
 
 M.deep_clone = deep_clone
 
+function M.rawpairs(t)
+  return next, t, nil
+end
+
 function M.no_functions(v)
   if type(v) == "function" then
     return nil

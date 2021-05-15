@@ -6,18 +6,20 @@ local M = {}
 
 M.unpack = unpack or table.unpack
 
-local function deep_clone(t, transformer)
+local function deep_clone(t, transformer, iter)
   if transformer then
     t = transformer(t)
   end
+
+  iter = iter or pairs
 
   if type(t) ~= "table" then
     return t
   end
 
   local new_t = {}
-  for k, v in pairs(t) do
-    new_t[deep_clone(k, transformer)] = deep_clone(v, transformer)
+  for k, v in iter(t) do
+    new_t[deep_clone(k, transformer, iter)] = deep_clone(v, transformer, iter)
   end
   return new_t
 end

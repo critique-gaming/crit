@@ -679,6 +679,7 @@ local function darken_node(node, value, duration)
   gui.cancel_animation(node, h_colory)
   gui.cancel_animation(node, h_colorz)
   gui.animate(node, h_colorx, value, gui.EASING_LINEAR, duration)
+  gui.animate(node, h_colory, value, gui.EASING_LINEAR, duration)
   gui.animate(node, h_colorz, value, gui.EASING_LINEAR, duration)
 end
 

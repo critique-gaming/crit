@@ -203,19 +203,66 @@ function M.remove_item(t, item)
   end
 end
 
-local function dump(x, identation)
-  identation = identation or ""
-  if type(x) == "table" then
-    local ident = identation .. "  "
-    local s = identation .. "{"
-    for k, v in pairs(x) do
-      s = s .. "\n" .. ident .. tostring(k) .. " = " .. dump(v, ident)
-    end
-    s = s .. "\n" .. identation .. "}"
-    return s
+function M.concat(tables)
+  local t = {}
+  for i = 1, #tables do
+    M.append_all(t, tables[i])
   end
-  return tostring(x)
+  return t
+end
+
+function M.append_all(t, source)
+  local n = #t
+  for i = 1, #source do
+    t[i + n] = source[i]
+  end
+  return t
+end
+
+local dump
+local function format_key(x)
+  if type(x) == "string" and string.match(x, "^[_a-zA-Z][_0-9a-zA-Z]*$") then
+    return x
+  end
+  return "[" .. dump(x) .. "]"
+end
+
+function dump(x, identation)
+  identation = identation or ""
+  local tp = type(x)
+  if tp == "table" then
+    local ident = identation .. "  "
+    local s = "{"
+    local n = #x
+    for i = 1, n do
+      s = s .. "\n" .. ident .. dump(x[i], ident) .. ","
+    end
+    for k, v in pairs(x) do
+      if type(k) ~= "number" or k < 1 or k > n then
+        s = s .. "\n" .. ident .. format_key(k) .. " = " .. dump(v, ident) .. ","
+      end
+    end
+    if s == "{" then
+      s = "{}"
+    else
+      s = s .. "\n" .. identation .. "}"
+    end
+    return s
+  elseif tp == "string" then
+    return string.format("%q", x)
+  else
+    return tostring(x)
+  end
 end
 M.dump = dump
+
+function M.index_of(t, value)
+  for i = 1, #t do
+    if t[i] == value then
+      return i
+    end
+  end
+  return nil
+end
 
 return M

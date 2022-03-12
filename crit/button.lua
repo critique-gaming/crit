@@ -7,6 +7,7 @@ local input_state = require "crit.input_state"
 local analog_to_digital = require "crit.analog_to_digital"
 local sys_config = require "crit.sys_config"
 local colors = require "crit.colors"
+local table_util = require "crit.table_util"
 
 local INPUT_METHOD_KEYBOARD = input_state.INPUT_METHOD_KEYBOARD
 local INPUT_METHOD_GAMEPAD = input_state.INPUT_METHOD_GAMEPAD
@@ -179,13 +180,21 @@ function Button.new(node, self)
     Button.default_gui_pick
   )
 
-  local shortcut_actions = {}
-  if self.shortcut_actions then
-    for i, action_id in ipairs(self.shortcut_actions) do
-      shortcut_actions[action_id] = true
+  local function set_shortcut_actions(actions)
+    local shortcut_actions = {}
+    if actions then
+      for i, action_id in ipairs(actions) do
+        shortcut_actions[action_id] = true
+      end
     end
+    self._shortcut_actions = shortcut_actions
   end
-  self._shortcut_actions = shortcut_actions
+  set_shortcut_actions(self.shortcut_actions)
+
+  function self.set_shortcut_actions(actions)
+    self.shortcut_actions = actions
+    set_shortcut_actions(actions)
+  end
 
   local on_state_change = resolve_callback(self.on_state_change)
   local on_focus_change = resolve_callback(self.on_focus_change)
@@ -206,13 +215,13 @@ function Button.new(node, self)
       return on_state_change(button, button_state, old_state)
     end
 
-    self.on_focus_change = function (button, focused)
+    self.on_focus_change = function (button, focused, old_focused)
       if focused then
-        on_state_change(button, STATE_HOVER, button.state)
+        on_state_change(button, STATE_HOVER, old_focused ~= nil and button.state or nil)
       else
-        on_state_change(button, button.state, STATE_HOVER)
+        on_state_change(button, button.state, old_focused ~= nil and STATE_HOVER or nil)
       end
-      on_focus_change(button, focused)
+      on_focus_change(button, focused, old_focused)
     end
   else
     self.on_state_change = on_state_change
@@ -290,12 +299,19 @@ function Button.new(node, self)
     return analog_to_digital.convert_action(self, action_id, action, Button_on_input)
   end
 
-  if not self.skip_initial_state_change then
-    self:on_state_change(self.state)
+  function self.refresh_state(animate)
+    if animate == false then
+      self:on_state_change(self.state)
+      self:on_focus_change(self.focused)
+    else
+      self:on_state_change(self.state, self.state)
+      self:on_focus_change(self.focused, self.focused)
+    end
   end
 
-  function self.refresh_state()
-    self:on_state_change(self.state, self.state)
+  if not self.skip_initial_state_change then
+    self:on_state_change(self.state)
+    self:on_focus_change(self.focused)
   end
 
   return self
@@ -310,16 +326,20 @@ function Button_set_state(self, state)
 end
 
 function Button_focus(self)
-  self.focused = true
-  self:on_focus_change(true)
+  if not self.focused then
+    self.focused = true
+    self:on_focus_change(true, false)
+  end
 end
 
 function Button_unfocus(self)
   if self.confirm_down_action then
     self.cancel_touch()
   end
-  self.focused = false
-  self:on_focus_change()
+  if self.focused then
+    self.focused = false
+    self:on_focus_change(false, true)
+  end
 end
 
 function Button_supports_focus(self)
@@ -538,11 +558,11 @@ function Button.focus_ring(node, is_sprite)
   end
 end
 
-local function resolve_duration(duration, state, old_state)
+local function resolve_duration(duration, state, old_state, button)
   if type(duration) == "function" then
-    return duration(state, old_state)
+    return duration(state, old_state, button)
   end
-  if not old_state then
+  if old_state == nil then
     return 0.0
   end
   return duration or 0.2
@@ -598,7 +618,9 @@ Button.default_fade_alpha = {
   [STATE_DEFAULT] = 1.0,
   [STATE_PRESSED] = 0.4,
   [STATE_HOVER] = 0.6,
-  [STATE_DISABLED] = 0.4
+  [STATE_DISABLED] = 0.4,
+  [false] = 0.0,
+  [true] = 1.0,
 }
 
 local function fade_sprite(node, value, duration)
@@ -619,7 +641,7 @@ end
 function Button.fade(options)
   return function (self, state, old_state)
     local value = resolve_value(options and options.alpha, state, self) or Button.default_fade_alpha[state]
-    local duration = resolve_duration(options and options.duration, state, old_state)
+    local duration = resolve_duration(options and options.duration, state, old_state, self)
 
     run_animations(self, options, value, duration, fade_sprite, fade_label, fade_node)
   end
@@ -629,7 +651,9 @@ Button.default_darken_brightness = {
   [STATE_DEFAULT] = 1.0,
   [STATE_PRESSED] = 0.4,
   [STATE_HOVER] = 0.6,
-  [STATE_DISABLED] = 0.4
+  [STATE_DISABLED] = 0.4,
+  [false] = 0.0,
+  [true] = 1.0,
 }
 
 local function darken_sprite(sprite, value, duration)
@@ -655,14 +679,13 @@ local function darken_node(node, value, duration)
   gui.cancel_animation(node, h_colory)
   gui.cancel_animation(node, h_colorz)
   gui.animate(node, h_colorx, value, gui.EASING_LINEAR, duration)
-  gui.animate(node, h_colory, value, gui.EASING_LINEAR, duration)
   gui.animate(node, h_colorz, value, gui.EASING_LINEAR, duration)
 end
 
 function Button.darken(options)
   return function (self, state, old_state)
     local value = resolve_value(options and options.brightness, state, self) or Button.default_darken_brightness[state]
-    local duration = resolve_duration(options and options.duration, state, old_state)
+    local duration = resolve_duration(options and options.duration, state, old_state, self)
 
     run_animations(self, options, value, duration, darken_sprite, darken_label, darken_node)
   end
@@ -673,6 +696,8 @@ Button.default_tint_color = {
   [STATE_PRESSED] = colors.gray(0.4),
   [STATE_HOVER] = colors.gray(0.6),
   [STATE_DISABLED] = colors.gray(0.4),
+  [false] = colors.black,
+  [true] = colors.white,
 }
 
 local function tint_sprite(node, value, duration)
@@ -693,7 +718,7 @@ end
 function Button.tint(options)
   return function (self, state, old_state)
     local value = resolve_value(options and options.color, state, self) or Button.default_tint_color[state]
-    local duration = resolve_duration(options and options.duration, state, old_state)
+    local duration = resolve_duration(options and options.duration, state, old_state, self)
 
     run_animations(self, options, value, duration, tint_sprite, tint_label, tint_node)
   end
@@ -708,6 +733,32 @@ function Button.flipbook(options)
       else
         gui.play_flipbook(self.node, animation)
       end
+    end
+  end
+end
+
+function Button.pass_focus_in_vertical_list(list, button_index)
+  return function (button, nav_action)
+    local index = button_index or table_util.index_of(list, button)
+    if index == nil then return false end
+
+    if nav_action == Button.NAVIGATE_UP and index > 1 then
+      return list[index - 1].focus()
+    elseif nav_action == Button.NAVIGATE_DOWN and index < #list then
+      return list[index + 1].focus()
+    end
+  end
+end
+
+function Button.pass_focus_in_horizontal_list(list, button_index)
+  return function (button, nav_action)
+    local index = button_index or table_util.index_of(list, button)
+    if index == nil then return false end
+
+    if nav_action == Button.NAVIGATE_LEFT and index > 1 then
+      return list[index - 1].focus()
+    elseif nav_action == Button.NAVIGATE_RIGHT and index < #list then
+      return list[index + 1].focus()
     end
   end
 end

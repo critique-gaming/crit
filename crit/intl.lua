@@ -72,6 +72,14 @@ local function warn(message, show_trace)
   end
 end
 
+local function interpolate(template, values)
+  if values == nil then
+    return template
+  end
+  local s = string.gsub(template, "${([a-zA-Z_][a-zA-Z_0-9]*)}", values)
+  return s
+end
+
 local function make_namespace(namespace_id, custom_loader)
   local lang_list
   local lang_count = 0
@@ -133,12 +141,7 @@ local function make_namespace(namespace_id, custom_loader)
 
   local function translate(key, values)
     if uninitialized then uninitialized_error() end
-    local entry = get_entry(key)
-    if not values then
-      return entry
-    end
-    local s = string.gsub(entry, "${([a-zA-Z_][a-zA-Z_0-9]*)}", values)
-    return s
+    return interpolate(get_entry(key), values)
   end
 
   local function translate_text_node(node, key, values)
@@ -320,6 +323,8 @@ function M.make_namespace(namespace_id, custom_loader)
   namespace_privates[public] = private
   return public
 end
+
+M.interpolate = interpolate
 
 M.lua_loader = lua_loader
 M.json_loader = json_loader

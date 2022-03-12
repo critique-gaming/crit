@@ -57,7 +57,7 @@ function progression._load_function(id, co)
     local func
     if result then
       local object = factory.create(factory_url)
-      func = progression._loaded_function
+      func = progression._loaded_functions[hash(id)]
       go.delete(object)
       factory.unload(factory_url)
     end

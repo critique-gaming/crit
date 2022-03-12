@@ -20,7 +20,8 @@ end
 function M.new(scroll, node, opts)
   opts = opts or empty
   local self = {
-    action_to_position = opts.action_to_position or M.default_gui_action_to_position
+    action_to_position = opts.action_to_position or M.default_gui_action_to_position,
+    node = node,
   }
 
   local knob = opts.knob or false

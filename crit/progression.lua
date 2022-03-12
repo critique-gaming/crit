@@ -260,8 +260,10 @@ function progression.lazy_load_function(id)
   end
 end
 
+progression._loaded_functions = {}
+
 function progression.register_function(f)
-  progression._loaded_function = f
+  progression._loaded_functions[msg.url().fragment] = f
 end
 
 function progression.init_register_function(f)

@@ -34,7 +34,7 @@ Coordinate spaces:
 
 * Camera space: This is where game objects live, as seen from the
   position and direction of the camera. Mapped over the viewport.
-  Its bounds are defined by projection_left/right/top/bottom or a projection matrix.
+  Its bounds are defined by camera_left/right/top/bottom or a projection matrix.
 
 * Design space: Window space scaled to the design resolution (which
   corresponds to action.x/action.y).
@@ -58,11 +58,11 @@ local viewport_origin_x, viewport_origin_y
 local design_offset_x, design_offset_y
 
 local projection, gui_projection
-local projection_left, projection_right
-local projection_top, projection_bottom
+local camera_left, camera_right
+local camera_top, camera_bottom
 
 local safe_left, safe_right, safe_top, safe_bottom
-local projection_safe_left, projection_safe_right, projection_safe_top, projection_safe_bottom
+local camera_safe_left, camera_safe_right, camera_safe_top, camera_safe_bottom
 
 local viewport_to_camera_scale_x, viewport_to_camera_scale_y
 local camera_to_viewport_scale_x, camera_to_viewport_scale_y
@@ -98,38 +98,38 @@ function M.set_metrics(metrics)
   M.viewport_origin_x = viewport_origin_x
   M.viewport_origin_y = viewport_origin_y
 
-  projection_left = metrics.projection_left
-  projection_right = metrics.projection_right
-  projection_bottom = metrics.projection_bottom
-  projection_top = metrics.projection_top
+  camera_left = metrics.camera_left
+  camera_right = metrics.camera_right
+  camera_bottom = metrics.camera_bottom
+  camera_top = metrics.camera_top
 
-  if not projection_left and not projection_right and not projection_bottom and not projection_top then
+  if not camera_left and not camera_right and not camera_bottom and not camera_top then
     local projection_matrix = metrics.projection
     if projection_matrix then
       local inv_projection = vmath.inv(projection_matrix)
       local bottom_left = inv_projection * vmath.vector4(-1, -1, 0, 1)
       local top_right = inv_projection * vmath.vector4(1, 1, 0, 1)
-      projection_left = bottom_left.x
-      projection_bottom = bottom_left.y
-      projection_right = top_right.x
-      projection_top = top_right.y
+      camera_left = bottom_left.x
+      camera_bottom = bottom_left.y
+      camera_right = top_right.x
+      camera_top = top_right.y
       projection = projection_matrix
     else
-      projection_left = 0
-      projection_bottom = 0
-      projection_right = design_width
-      projection_top = design_height
+      camera_left = 0
+      camera_bottom = 0
+      camera_right = design_width
+      camera_top = design_height
     end
   end
 
-  camera_width = projection_right - projection_left
-  camera_height = projection_top - projection_bottom
+  camera_width = camera_right - camera_left
+  camera_height = camera_top - camera_bottom
   M.camera_width = camera_width
   M.camera_height = camera_height
-  M.projection_left = projection_left
-  M.projection_right = projection_right
-  M.projection_top = projection_top
-  M.projection_bottom = projection_bottom
+  M.camera_left = camera_left
+  M.camera_right = camera_right
+  M.camera_top = camera_top
+  M.camera_bottom = camera_bottom
 
   viewport_to_camera_scale_x = camera_width / viewport_width
   viewport_to_camera_scale_y = camera_height / viewport_height
@@ -158,20 +158,20 @@ function M.set_metrics(metrics)
     safe_top = math.min(viewport_height, window_height - viewport_origin_y - (safe_area.top or 0))
   end
 
-  projection_safe_left = projection_left + viewport_to_camera_scale_x * safe_left
-  projection_safe_right = projection_left + viewport_to_camera_scale_x * safe_right
-  projection_safe_top = projection_bottom + viewport_to_camera_scale_y * safe_top
-  projection_safe_bottom = projection_bottom + viewport_to_camera_scale_y * safe_bottom
+  camera_safe_left = camera_left + viewport_to_camera_scale_x * safe_left
+  camera_safe_right = camera_left + viewport_to_camera_scale_x * safe_right
+  camera_safe_top = camera_bottom + viewport_to_camera_scale_y * safe_top
+  camera_safe_bottom = camera_bottom + viewport_to_camera_scale_y * safe_bottom
 
   M.safe_left = safe_left
   M.safe_right = safe_right
   M.safe_top = safe_top
   M.safe_bottom = safe_bottom
 
-  M.projection_safe_left = projection_safe_left
-  M.projection_safe_right = projection_safe_right
-  M.projection_safe_top = projection_safe_top
-  M.projection_safe_bottom = projection_safe_bottom
+  M.camera_safe_left = camera_safe_left
+  M.camera_safe_right = camera_safe_right
+  M.camera_safe_top = camera_safe_top
+  M.camera_safe_bottom = camera_safe_bottom
 
   camera_z_near = metrics.camera_z_near or -1
   camera_z_far = metrics.camera_z_far or 1
@@ -191,8 +191,8 @@ M.set_metrics({
 
 function M._get_projection_matrix()
   return vmath.matrix4_orthographic(
-    projection_left, projection_right,
-    projection_bottom, projection_top,
+    camera_left, camera_right,
+    camera_bottom, camera_top,
     camera_z_near, camera_z_far
   )
 end
@@ -228,15 +228,15 @@ end
 M.viewport_to_window = viewport_to_window
 
 local function viewport_to_camera(x, y)
-  local new_x = x * viewport_to_camera_scale_x + projection_left
-  local new_y = y * viewport_to_camera_scale_y + projection_bottom
+  local new_x = x * viewport_to_camera_scale_x + camera_left
+  local new_y = y * viewport_to_camera_scale_y + camera_bottom
   return new_x, new_y
 end
 M.viewport_to_camera = viewport_to_camera
 
 local function camera_to_viewport(x, y)
-  local new_x = (x - projection_left) * camera_to_viewport_scale_x
-  local new_y = (y - projection_bottom) * camera_to_viewport_scale_y
+  local new_x = (x - camera_left) * camera_to_viewport_scale_x
+  local new_y = (y - camera_bottom) * camera_to_viewport_scale_y
   return new_x, new_y
 end
 M.camera_to_viewport = camera_to_viewport
@@ -290,7 +290,7 @@ function M.default_get_gui_metrics()
 end
 
 function M.default_get_go_metrics()
-  return projection_left, projection_bottom, projection_right, projection_top
+  return camera_left, camera_bottom, camera_right, camera_top
 end
 
 function M.default_get_gui_safe_metrics()
@@ -298,7 +298,7 @@ function M.default_get_gui_safe_metrics()
 end
 
 function M.default_get_go_safe_metrics()
-  return projection_safe_left, projection_safe_bottom, projection_safe_right, projection_safe_top
+  return camera_safe_left, camera_safe_bottom, camera_safe_right, camera_safe_top
 end
 
 local scale_func = {}
@@ -392,6 +392,7 @@ function M.new(opts)
       scale_by = scale_by,
       resize_x = node_options.resize_x or false,
       resize_y = node_options.resize_y or false,
+      on_resize = node_options.on_resize,
     }
 
     nodes[len] = node_spec
@@ -439,10 +440,14 @@ function M.new(opts)
         end
 
         local new_size = vmath.vector3(size_x, size_y, node.size.z)
-        if is_go then
-          go.set(node_id, h_size, new_size)
+        if node.on_resize then
+          node.on_resize(node, node_id, new_size)
         else
-          gui.set_size(node_id, new_size)
+          if is_go then
+            go.set(node_id, h_size, new_size)
+          else
+            gui.set_size(node_id, new_size)
+          end
         end
       end
     end

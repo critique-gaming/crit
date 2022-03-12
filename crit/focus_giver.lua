@@ -28,7 +28,7 @@ function M.new(opts)
 
   local self = {
     on_pass_focus = opts.on_pass_focus,
-    enabled = true,
+    enabled = opts.enabled == nil or opts.enabled,
   }
 
   local function FocusGiver_pass_focus(self_, input_method, nav_action)
@@ -57,6 +57,30 @@ function M.new(opts)
       input_state.switch_input_method(input_method)
     end
     return did_focus
+  end
+
+  function self.focus_first(nav_action)
+    if not self.enabled then
+      return false
+    end
+
+    if focus_context.something_is_focused then
+      return false
+    end
+
+    if nav_action then
+      if type(nav_action) == "table" then
+        for i, dir in ipairs(nav_action) do
+          if FocusGiver_pass_focus(self, nil, dir) then
+            return true
+          end
+        end
+        return FocusGiver_pass_focus(self, nil, nil)
+      else
+        return FocusGiver_pass_focus(self, nil, nav_action) or FocusGiver_pass_focus(self, nil, nil)
+      end
+    end
+    return FocusGiver_pass_focus(self, nil, nil)
   end
 
   function self.try_focus_first(nav_action)
@@ -138,6 +162,34 @@ function M.new(opts)
   end
 
   return self
+end
+
+function M.pass_focus_in_vertical_list(list)
+  return function (focus_giver, nav_action)
+    local t = list
+    if type(list) == "function" then
+      t = list(focus_giver)
+    end
+    if not nav_action or nav_action == Button.NAVIGATE_DOWN then
+      return t[1].focus()
+    elseif nav_action == Button.NAVIGATE_UP then
+      return t[#t].focus()
+    end
+  end
+end
+
+function M.pass_focus_in_horizontal_list(list)
+  return function (focus_giver, nav_action)
+    local t = list
+    if type(list) == "function" then
+      t = list(focus_giver)
+    end
+    if not nav_action or nav_action == Button.NAVIGATE_RIGHT then
+      return t[1].focus()
+    elseif nav_action == Button.NAVIGATE_LEFT then
+      return t[#t].focus()
+    end
+  end
 end
 
 return M

@@ -13,6 +13,7 @@
 local M = {}
 
 -- luacheck: push no max line length
+
 --[[--
   Create a low pass filter.
 
@@ -61,6 +62,7 @@ function M.high_pass(cutoff_frequency)
     return alpha * (previous_output + delta_input);
   end
 end
+
 -- luacheck: pop
 
 --- A high pass filter function returned by @{high_pass}.

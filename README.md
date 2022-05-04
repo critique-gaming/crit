@@ -1,3 +1,8 @@
+**⚠️⚠️⚠️ WARNING!!! We renamed the `master` branch to `main`. This branch is deprecated. Update your dependency URLs to
+use one of the [releases](https://github.com/critique-gaming/crit/releases) (or the `main` branch if you must).**
+
+---
+
 # Crit - Building blocks for Defold games
 
 A battle-tested collection of un-opinionated modules we use at 

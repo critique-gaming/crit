@@ -3,6 +3,7 @@
 -- @todo
 
 local h_progression_change_context = hash("progression_change_context")
+local h_run_progression = hash("run_progression")
 
 local progression = {}
 
@@ -270,6 +271,38 @@ function progression.init_register_function(f)
   _G.init = function ()
     progression.register_function(f)
   end
+end
+
+function progression.entry_point_loop(progressions, entry_progression, entry_progression_arg)
+  local function run_progression(progression_id, ...)
+    -- The first argument is normally a progression id, but also accept
+    -- a function which could come from env.entry_progression
+    local coroutine_function
+    if type(progression_id) == 'function' then
+      coroutine_function = progression_id
+    else
+      coroutine_function = progressions[progression_id]
+    end
+
+    if not coroutine_function then
+      print("ERROR: There is no progression with id \"" .. progression_id .. "\"")
+      return
+    end
+    return progression.detach(coroutine_function, ...)
+  end
+
+  local co
+
+  local watcher = progression.fork(function ()
+    while true do
+      local message = progression.wait_for_message(h_run_progression)
+      if co then progression.cancel(co) end
+      co = run_progression(message.id, message.options)
+    end
+  end)
+
+  co = run_progression(entry_progression, entry_progression_arg)
+  progression.join(watcher)
 end
 
 return progression

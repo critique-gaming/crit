@@ -33,6 +33,8 @@ each designed to solve one specific problem. Use as much or as little as you nee
   * [Keyboard/gamepad focus state](https://critique-gaming.github.io/crit/modules/crit.input_state.html)
   * [Analog to digital thumb stick conversion](./docs/analog_to_digital.md)
   * [Mouse cursor hiding manager](./docs/cursor.md)
+  * [Screen corner hotspots](https://critique-gaming.github.io/crit/modules/crit.hotspots.html)
+  * [Cheatcodes](https://critique-gaming.github.io/crit/modules/crit.cheatcodes.html)
 * [Internationalisation](./docs/intl.md)
 * Utilities
   * [Color manipulation utilities](https://critique-gaming.github.io/crit/modules/crit.colors.html)
